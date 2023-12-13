@@ -2,7 +2,7 @@
 const withMT = require("@material-tailwind/react/utils/withMT");
 
 module.exports = withMT({
-  content: ["./src/**/*.{js,jsx,html}"],
+  content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
       fontFamily: {
@@ -10,6 +10,7 @@ module.exports = withMT({
         poppins: ["Poppins", "sans-serif"],
         dmSans: ["DM Sans", "sans-serif"],
         mulish: ["Mulish", "sans-serif"],
+        lato: ["Lato", "sans-serif"],
       },
       colors: {
         lightBlack: "rgba(0, 0, 0, 0.70)",
