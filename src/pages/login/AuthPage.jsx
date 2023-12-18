@@ -358,7 +358,7 @@ const AuthPage = () => {
             <img
               src={logo2}
               alt=''
-              className='w-[5rem] xs:w-[6rem] lg:w-[30rem] lg:h-[30rem] h-auto xs:h-auto'
+              className='w-[5rem] xs:w-[6rem] lg:w-[12.5rem] h-auto xs:h-auto'
             />
           </div>
 
