@@ -1,7 +1,7 @@
 import React from "react";
 import { useMemo } from "react";
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
-import { Icon } from '@iconify/react';
+import { Icon } from "@iconify/react";
 import { IconButton } from "@material-tailwind/react";
 
 // default component options
@@ -52,56 +52,60 @@ export default function CustomPagination({
       ? `${firstIndex}-${rowCount} ${options.rangeSeparatorText} ${rowCount}`
       : `${firstIndex}-${lastIndex} ${options.rangeSeparatorText} ${rowCount}`;
   return (
-    <div
-      className="flex justify-between items-center gap-[1rem]  px-2 py-1 rouded mt-3 bg-white"
-      style={{ width: "fit-content" }}
-    >
-      <Icon icon="material-symbols:arrow-back-ios-new-rounded" className="text-[#969696] text-[1.5rem] cursor-pointer" onClick={()=>handlePrevious()}  />
-     
-    
-      <div className="flex space-x-4">
-        {currentPage > 1 && (
-         
-          <IconButton
-          onClick={() => goToPage(currentPage - 1)}
-           className="text-[#969696] shadow-none hover:shadow-none focus:shadow-none w-[2rem] h-[2rem] text-[0.9rem] font-bold"
-           style={{borderRadius: "6px",
-            border: "1px solid #ECECEC",
-            background: "#FFF"}}
-          >
+    <div className='flex flex-col lg:flex-row justify-between lg:items-center py-[1.6rem] px-[1rem]'>
+      <p className='text-[#8888A3] text-[0.8rem] font-[500]'>
+        {currentPage} - {lastIndex} of {numPages} items
+      </p>
+      <div className='flex flex-row justify-between self-start items-center gap-[1rem]  px-2 py-1 rounded mt-3 bg-white'>
+        <button
+          className='bg-#FFF] rounded-[0.5rem] border border-solid border-[#D1D4D7] py-[0.5rem] px-[0.8rem] text-[#8888A3] text-[0.8rem] font-[500]'
+          onClick={() => handlePrevious()}>
+          Previous
+        </button>
 
-            {currentPage - 1}
-          </IconButton>
-        )}
-      
-        <IconButton
-      
-           className="text-white bg-[#BE0A23] shadow-none hover:shadow-none focus:shadow-none w-[2rem] h-[2rem] text-[0.9rem] font-bold"
-           style={{borderRadius: "6px",
-            border: "1px solid #ECECEC"}}
-          >
+        {/* <span className='border-[0.727px] border-solid  border-[#E1D6D5] rounded-[7.23px] p-[7.23px] text-[0.6rem]'>
+          1
+        </span> */}
 
+        <div className='flex space-x-4'>
+          {currentPage > 1 && (
+            <span
+              onClick={() => goToPage(currentPage - 1)}
+              className='text-[#D1D4D7] bg-[#FFF] p-[7.23px] text-[0.7rem] flex justify-center items-center'
+              style={{
+                borderRadius: "7.273px",
+                border: "0.727px solid #ECECEC",
+              }}>
+              {currentPage - 1}
+            </span>
+          )}
+
+          <span
+            className='text-[#D1D4D7] bg-[#FFF] p-[7.273px] text-[0.7rem] flex justify-center items-center '
+            style={{
+              borderRadius: "7.273px",
+              border: "0.727px solid #ECECEC",
+            }}>
             {currentPage}
-          </IconButton>
-        {currentPage < numPages && (
-        
-           <IconButton
-           onClick={() => goToPage(currentPage + 1)}
-           className="text-[#969696] shadow-none hover:shadow-none focus:shadow-none w-[2rem] h-[2rem] text-[0.9rem] font-bold"
-           style={{borderRadius: "6px",
-           border: "1px solid #ECECEC",
-           background: "#FFF"}}
-           >
- 
-             {currentPage + 1}{" "}
-         
-           </IconButton>
-          
-        )}
+          </span>
+          {currentPage < numPages && (
+            <span
+              onClick={() => goToPage(currentPage + 1)}
+              className='text-[#D1D4D7] bg-[#FFF] p-[7.23px] text-[0.7rem] flex justify-center items-center '
+              style={{
+                borderRadius: "7.273px",
+                border: " 0.727px solid #ECECEC",
+              }}>
+              {currentPage + 1}{" "}
+            </span>
+          )}
+        </div>
+        <button
+          className='bg-#FFF] rounded-[0.5rem] border border-solid border-[#D1D4D7] py-[0.5rem] px-[0.8rem] text-[#8888A3] text-[0.8rem] font-[500]'
+          onClick={() => handleNext()}>
+          Next
+        </button>
       </div>
-      <Icon icon="material-symbols:arrow-back-ios-new-rounded" rotate={2} className="text-[#969696] text-[1.5rem] cursor-pointer" onClick={()=>handleNext()}  />
-
-      
     </div>
   );
 }

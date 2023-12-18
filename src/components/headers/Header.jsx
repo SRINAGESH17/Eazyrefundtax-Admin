@@ -1,25 +1,37 @@
-import React from "react";
+import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 import Badge from "@mui/material/Badge";
-import { useSelector } from "react-redux";
 
-const Header = ({ isVendorSidebarOpen, setIsVendorSidebarOpen }) => {
-  const {userId, userName} = useSelector((state)=>state.employee);
- 
+import {
+  Menu,
+  MenuHandler,
+  MenuList,
+  MenuItem,
+  Button,
+} from "@material-tailwind/react";
+
+import { useSelector } from "react-redux";
+import profile from "../../assets/profile.png";
+
+const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
+  const { userId, userName } = useSelector((state) => state.employee);
+
+  const [name, setUserName] = useState("james");
+
   return (
-    <div className="hidden sm:flex flex-row  justify-between items-center px-[1rem] md:px-[2rem] lg:px-[4rem] py-[1rem] border-b border-[#DFDFDF] font-manrope">
-      <div className="flex flex-row items-center gap-[2rem] md:gap-[4rem]">
+    <div className='hidden relative sm:flex flex-row  justify-between items-center  px-[1rem] md:px-[2rem] lg:px-[4rem] py-[1rem] border-b border-[#DFDFDF] font-lato'>
+      <div className='flex flex-row items-center gap-[2rem] md:gap-[4rem]'>
         <div
-          className="px-[0.3rem] rounded-md lg:hidden cursor-pointer"
+          className='px-[0.3rem] rounded-md lg:hidden cursor-pointer'
           style={{
-            background:
-              "linear-gradient(91.06deg, #BE0A23 0.01%, #E99F00 100.04%)",
+            background: "#C5090A",
           }}
-          onClick={()=>{setIsVendorSidebarOpen(true)}}
-        >
-          <Icon icon="ic:outline-menu" className="text-[2.5rem] text-white " />
+          onClick={() => {
+            setIsSidebarOpen(true);
+          }}>
+          <Icon icon='ic:outline-menu' className='text-[2.5rem] text-white ' />
         </div>
-        <div
+        {/* <div
           className="flex flex-row items-center border rounded-md border-[#DFDFDF] bg-white px-[1rem] py-[0.5rem]"
           style={{ boxShadow: "4px 4px 150px rgba(0, 0, 0, 0.13)" }}
         >
@@ -37,22 +49,54 @@ const Header = ({ isVendorSidebarOpen, setIsVendorSidebarOpen }) => {
           >
             <Icon icon="akar-icons:search" />
           </div>
-        </div>
+        </div> */}
       </div>
-      <div className="flex flex-row items-center gap-[1rem] sm:gap-[2rem] md:gap-[4rem]">
-        <Badge color="error" overlap="circular" variant="dot">
-          <Icon icon="clarity:notification-line" className="text-[1.5rem]" />
+      <div className='flex flex-row items-center gap-[1rem] sm:gap-[2rem] md:gap-[4rem]'>
+        <Badge color='error' overlap='circular' variant='dot'>
+          <Icon
+            icon='clarity:notification-line'
+            className='text-[1.5rem] text-[#8888A3]'
+          />
         </Badge>
 
-        <div className="flex flex-row items-center gap-[1rem]">
-          {/* <img src={vendorAvatar} alt="" className="w-[3rem] h-auto" /> */}
-          <div>
-            <h3 className="text-[#4D4D4D] text-[0.8rem] font-[600]">
-              {userName || "name"}
-            </h3>
-            <p className="text-[#4D4D4D] text-[0.8rem] font-[500]">{userId || ""}</p>
-          </div>
-        </div>
+        <Menu placement='bottom'>
+          <MenuHandler>
+            <div className='flex flex-row items-center gap-[1rem]'>
+              <img
+                src={profile}
+                alt=''
+                className='w-[3rem]  h-auto rounded-full'
+              />
+              <div>
+                <h3 className='text-[1rem] font-[500] capitalize text-[#1A1616]'>
+                  {name}
+                </h3>
+                <h4 className='text-[#8888A3] text-[0.8rem] font-[500]'>
+                  Admin
+                </h4>
+              </div>
+              <button>
+          <Icon icon='icon-park-outline:down' />
+        </button>
+            </div>
+          </MenuHandler>
+          <MenuList>
+            <MenuItem>Profile</MenuItem>
+            <MenuItem>Forgot Password</MenuItem>
+            <MenuItem>Settings</MenuItem>
+          </MenuList>
+        </Menu>
+
+     
+
+        {/* <div className=''>
+          <select
+            onChange={(e) => setUserName(e.target.value)}
+            className='border-none'>
+            <option value={"satyendra"}>Satyendra</option>
+            <option value={"nagesh"}>Nagesh</option>
+          </select>
+        </div> */}
       </div>
     </div>
   );

@@ -14,6 +14,11 @@ module.exports = withMT({
       },
       colors: {
         lightBlack: "rgba(0, 0, 0, 0.70)",
+        imageGray: "rgba(209, 212, 215, 0.20)",
+      },
+      boxShadow: {
+        shadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
+        formShadow: "0px 4px 10px 0px rgba(0, 0, 0, 0.10)",
       },
     },
 
@@ -41,5 +46,5 @@ module.exports = withMT({
       // => @media (min-width: 1536px) { ... }
     },
   },
-  plugins: [],
+  plugins: [require("tailwind-scrollbar")],
 });

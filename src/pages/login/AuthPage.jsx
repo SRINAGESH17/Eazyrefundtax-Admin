@@ -27,17 +27,12 @@ const AuthPage = () => {
 
   const [showForgotPassword, setForgotPasswordStatus] = useState(false);
   const navigate = useNavigate();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    control,
-    reset,
-  } = useForm();
+  
   const { login, currentUser, resetPassword, saveUserRole, setUserInfo } =
     useAuth();
 
   const loginHandler = async (data) => {
+    console.log("login handler called");
     setLoaderBtn(true);
     try {
       const { email, password } = data;
@@ -87,6 +82,7 @@ const AuthPage = () => {
     setLoaderBtn(false);
   };
   const forgotPasswordHandler = async (data) => {
+    console.log("forgot password called");
     setLoaderBtn(true);
     try {
       const { email } = data;
@@ -130,10 +126,21 @@ const AuthPage = () => {
   };
 
   const ForgotPassword = () => {
+    const {
+      register,
+      handleSubmit,
+      formState: { errors },
+      control,
+      reset,
+    } = useForm();
+
+    const onSubmit = (data) => {
+      forgotPasswordHandler(data);
+    };
     return (
       <form
+        onSubmit={handleSubmit(onSubmit)}
         action=''
-        // onSubmit={handleSubmit(onSubmit)}
         className='w-full flex flex-col gap-[1.5rem]'>
         <div className='group flex flex-col gap-[0.5rem]'>
           <label
@@ -142,7 +149,7 @@ const AuthPage = () => {
             Email Address
           </label>
           <div
-            className={`flex flex-row text-[0.8rem] group-focus-within:bg-white  group-focus-within:shadow-md border-[0.5px]  ${
+            className={`flex flex-row text-[0.8rem] text-[#8888A3] group-focus-within:bg-white  group-focus-within:shadow-md border-[0.5px]  ${
               !errors.email ? "border-[#8888A3]" : "border-red-600 "
             } rounded-md px-[0.5rem] xs:px-[1rem] py-[0.8rem] font-[400] `}>
             <Icon
@@ -155,23 +162,25 @@ const AuthPage = () => {
               name='email'
               placeholder='satyendra@gmail.com'
               className='ml-[1rem] outline-none w-1 placeholder:text-[#8888A3]   border-none flex-grow'
-              // {...register("email", {
-              //   required: "*This field is required.",
-              //   pattern: /^\S+@\S+$/i,
-              // })}
+              {...register("email", {
+                required: "*This field is required.",
+                pattern: /^\S+@\S+$/i,
+              })}
             />
           </div>
-          {/* {errors.email?.type === "required" && (
+          {errors.email?.type === "required" && (
             <p className='text-red-600 text-sm'>{errors.email.message}</p>
           )}
           {errors.email?.type === "pattern" && (
             <p className='text-sm text-red-600'>Invalid email</p>
-          )} */}
+          )}
         </div>
 
         <div
           className={`flex flex-row justify-start self-start  text-[#1A1A1A] text-[0.8rem] font-[600]`}>
           <button
+
+          type="button"
             onClick={() => setForgotPasswordStatus(false)}
             className={`w-full border-none`}>
             <p className='cursor-pointer'>Back</p>
@@ -203,10 +212,21 @@ const AuthPage = () => {
   };
 
   const LoginForm = () => {
+    const {
+      register,
+      handleSubmit,
+      formState: { errors },
+      control,
+      reset,
+    } = useForm();
+
+    const onSubmit = (data) => {
+      loginHandler(data);
+    };
+
     return (
       <form
-        action=''
-        // onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit)}
         className='w-full flex flex-col gap-[1.5rem]'>
         <div className='group flex flex-col gap-[0.5rem]'>
           <label
@@ -227,19 +247,19 @@ const AuthPage = () => {
               type='text'
               name='email'
               placeholder='satyendra@gmail.com'
-              className='ml-[1rem] outline-none w-1 placeholder:text-[#8888A3]  border-none flex-grow'
-              // {...register("email", {
-              //   required: "*This field is required.",
-              //   pattern: /^\S+@\S+$/i,
-              // })}
+              className='ml-[1rem] outline-none w-1 placeholder:text-[#8888A3] text-[#8888A3]  border-none flex-grow'
+              {...register("email", {
+                required: "*This field is required.",
+                pattern: /^\S+@\S+$/i,
+              })}
             />
           </div>
-          {/* {errors.email?.type === "required" && (
-                <p className='text-red-600 text-sm'>{errors.email.message}</p>
-              )}
-              {errors.email?.type === "pattern" && (
-                <p className='text-sm text-red-600'>Invalid email</p>
-              )} */}
+          {errors.email?.type === "required" && (
+            <p className='text-red-600 text-sm'>{errors.email.message}</p>
+          )}
+          {errors.email?.type === "pattern" && (
+            <p className='text-sm text-red-600'>Invalid email</p>
+          )}
         </div>
 
         <div className='group flex flex-col gap-[0.5rem] '>
@@ -258,26 +278,33 @@ const AuthPage = () => {
             />
             <input
               type={showPassword ? "text" : "password"}
-              name='password'
               placeholder='*********'
-              className='mx-[1rem] outline-none border-none w-1  placeholder:text-[#8888A3]   flex-grow'
-              // {...register("password", {
-              //   required: "*This field is required.",
-              // })}
+              name='password'
+              className='mx-[1rem] outline-none border-none w-1  placeholder:text-[#8888A3] text-[#8888A3]   flex-grow'
+              {...register("password", {
+                required: "*This field is required.",
+              })}
             />
-            <div className='text-[1.2rem] pl-[0.5rem] xs:pl-[1rem] text-[] cursor-pointer '>
+            <div className='text-[1.2rem] pl-[0.5rem] xs:pl-[1rem]  cursor-pointer '>
+              {console.log(showPassword)}
               {showPassword ? (
-                <Icon onClick={showUserPassword} icon='mdi:eye' />
+                <Icon
+                  onClick={showUserPassword}
+                  icon='mdi:eye'
+                  className='text-[#1A1A1A]'
+                />
               ) : (
-                <Icon onClick={showUserPassword} icon='mdi:eye-off' />
+                <Icon
+                  onClick={showUserPassword}
+                  icon='mdi:eye-off'
+                  className='text-[#1A1A1A]'
+                />
               )}
             </div>
           </div>
-          {/* {errors.password && (
-                <p className='text-red-600 text-sm'>
-                  {errors.password.message}
-                </p>
-              )} */}
+          {errors.password && (
+            <p className='text-red-600 text-sm'>{errors.password.message}</p>
+          )}
         </div>
 
         <div

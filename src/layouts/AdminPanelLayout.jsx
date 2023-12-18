@@ -8,44 +8,42 @@ import { motion, AnimatePresence } from "framer-motion";
 import MobileHeader from "../components/headers/MobileHeader";
 
 const AdminPanelLayout = () => {
-  const [isVendorSidebarOpen, setIsVendorSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   return (
     <>
-      <div className="flex overflow-y-hidden bg-white">
-        <div className="hidden lg:inline-block lg:flex-1 ">
+      <div className='flex  bg-white'>
+        <div className='hidden lg:inline-block lg:flex-1 '>
           <VendorSidebar
-            isVendorSidebarOpen={isVendorSidebarOpen}
-            setIsVendorSidebarOpen={setIsVendorSidebarOpen}
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
           />
         </div>
-        <AnimatePresence mode="wait">
-          {isVendorSidebarOpen && (
+        <AnimatePresence mode='wait'>
+          {isSidebarOpen && (
             <motion.div
-              className="absolute top-0 left-0 z-40 lg:hidden flex-1 "
+              className='absolute top-0 left-0 z-40 lg:hidden flex-1 '
               initial={{ x: -100 }}
               animate={{ x: 0 }}
               transition={{ type: "linear", duration: 0.5 }}
-              exit={{ x: -400, transition: "linear", duration: 1.5 }}
-            >
+              exit={{ x: -400, transition: "linear", duration: 1.5 }}>
               <VendorSidebar
-                isVendorSidebarOpen={isVendorSidebarOpen}
-                setIsVendorSidebarOpen={setIsVendorSidebarOpen}
+                isSidebarOpen={isSidebarOpen}
+                setIsSidebarOpen={setIsSidebarOpen}
               />
             </motion.div>
           )}
         </AnimatePresence>
 
-        <div className="lg:flex-[5] w-full h-screen overflow-y-auto overflow-x-hidden">
+        <div className='lg:flex-[4] grow  w-full h-screen overflow-y-auto overflow-x-hidden'>
           <div
-            className={`h-full  overflow-x-hidden relative flex flex-col `}
-          >
-             <Header
-              isVendorSidebarOpen={isVendorSidebarOpen}
-              setIsVendorSidebarOpen={setIsVendorSidebarOpen}
+            className={`h-full  overflow-x-hidden relative flex flex-col w-full grow `}>
+            <Header
+              isSidebarOpen={isSidebarOpen}
+              setIsSidebarOpen={setIsSidebarOpen}
             />
-           <MobileHeader
-              isVendorSidebarOpen={isVendorSidebarOpen}
-              setIsVendorSidebarOpen={setIsVendorSidebarOpen}
+            <MobileHeader
+              isVendorSidebarOpen={isSidebarOpen}
+              setIsSidebarOpen={setIsSidebarOpen}
             />
             <Outlet />
           </div>
