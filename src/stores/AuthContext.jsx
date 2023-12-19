@@ -21,6 +21,7 @@ export const AuthContextProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   function login(email, password) {
+    console.log(email, password, "login auth called");
     return signInWithEmailAndPassword(auth, email, password);
   }
 

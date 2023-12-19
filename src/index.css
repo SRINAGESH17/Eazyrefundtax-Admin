@@ -6,4 +6,30 @@
 @tailwind components;
 @tailwind utilities;
 
+.popup-overlay {
+    background: rgba(0, 0, 0, 0.30);
+  }
 
+  
+  
+#callData::-webkit-scrollbar {
+  height:9px;
+ 
+}
+
+#callData::-webkit-scrollbar-track {
+    /* Change the background color */
+    background-color: #f1f1f1;
+  }
+  
+  /* Select the scrollbar thumb */
+#callData::-webkit-scrollbar-thumb {
+    /* Change the background color */
+    background-color: #888;
+    height:4px;
+    border-radius: 20px;
+   
+  
+   
+   
+}
