@@ -133,7 +133,7 @@ const AuthPage = () => {
     return (
       <form
         action=''
-        // onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(forgotPasswordHandler)}
         className='w-full flex flex-col gap-[1.5rem]'>
         <div className='group flex flex-col gap-[0.5rem]'>
           <label
@@ -155,18 +155,18 @@ const AuthPage = () => {
               name='email'
               placeholder='satyendra@gmail.com'
               className='ml-[1rem] outline-none w-1 placeholder:text-[#8888A3]   border-none flex-grow'
-              // {...register("email", {
-              //   required: "*This field is required.",
-              //   pattern: /^\S+@\S+$/i,
-              // })}
+              {...register("email", {
+                required: "*This field is required.",
+                pattern: /^\S+@\S+$/i,
+              })}
             />
           </div>
-          {/* {errors.email?.type === "required" && (
+          {errors.email?.type === "required" && (
             <p className='text-red-600 text-sm'>{errors.email.message}</p>
           )}
           {errors.email?.type === "pattern" && (
             <p className='text-sm text-red-600'>Invalid email</p>
-          )} */}
+          )}
         </div>
 
         <div
@@ -206,7 +206,7 @@ const AuthPage = () => {
     return (
       <form
         action=''
-        // onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(loginHandler)}
         className='w-full flex flex-col gap-[1.5rem]'>
         <div className='group flex flex-col gap-[0.5rem]'>
           <label
@@ -228,18 +228,18 @@ const AuthPage = () => {
               name='email'
               placeholder='satyendra@gmail.com'
               className='ml-[1rem] outline-none w-1 placeholder:text-[#8888A3]  border-none flex-grow'
-              // {...register("email", {
-              //   required: "*This field is required.",
-              //   pattern: /^\S+@\S+$/i,
-              // })}
+              {...register("email", {
+                required: "*This field is required.",
+                pattern: /^\S+@\S+$/i,
+              })}
             />
           </div>
-          {/* {errors.email?.type === "required" && (
+          {errors.email?.type === "required" && (
                 <p className='text-red-600 text-sm'>{errors.email.message}</p>
               )}
               {errors.email?.type === "pattern" && (
                 <p className='text-sm text-red-600'>Invalid email</p>
-              )} */}
+              )}
         </div>
 
         <div className='group flex flex-col gap-[0.5rem] '>
@@ -261,9 +261,9 @@ const AuthPage = () => {
               name='password'
               placeholder='*********'
               className='mx-[1rem] outline-none border-none w-1  placeholder:text-[#8888A3]   flex-grow'
-              // {...register("password", {
-              //   required: "*This field is required.",
-              // })}
+              {...register("password", {
+                required: "*This field is required.",
+              })}
             />
             <div className='text-[1.2rem] pl-[0.5rem] xs:pl-[1rem] text-[] cursor-pointer '>
               {showPassword ? (
@@ -273,11 +273,11 @@ const AuthPage = () => {
               )}
             </div>
           </div>
-          {/* {errors.password && (
+          {errors.password && (
                 <p className='text-red-600 text-sm'>
                   {errors.password.message}
                 </p>
-              )} */}
+              )}
         </div>
 
         <div
@@ -315,7 +315,7 @@ const AuthPage = () => {
 
   const bannerImage = showForgotPassword ? forgotPasswordBanner : loginBanner;
   return (
-    <div className='flex flex-row w-full h-screen  xs:min-h-[600px] bg-[#F0F4F9] text-white '>
+    <div className='flex flex-row w-full h-screen  xs:min-h-[600px] bg-[#F0F4F9] '>
       <div className='hidden bg-[#EAF1FF] w-[48%] relative lg:flex flex-col justify-center items-center px-[1rem] '>
         <div className='mx-auto w-full flex justify-center'>
           <img src={bannerImage} className='h-auto w-[33rem]' />
