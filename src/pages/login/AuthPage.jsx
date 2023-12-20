@@ -6,10 +6,6 @@ import { AuthURL } from "../../baseUrl/BaseUrl";
 
 import { Icon } from "@iconify/react";
 
-import { AiOutlineMail } from "react-icons/ai";
-import { RiLockPasswordLine } from "react-icons/ri";
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
 import { ThreeDots } from "react-loader-spinner";
