@@ -6,10 +6,6 @@ import { AuthURL } from "../../baseUrl/BaseUrl";
 
 import { Icon } from "@iconify/react";
 
-import { AiOutlineMail } from "react-icons/ai";
-import { RiLockPasswordLine } from "react-icons/ri";
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
 import { ThreeDots } from "react-loader-spinner";
@@ -141,6 +137,7 @@ const AuthPage = () => {
       <form
         onSubmit={handleSubmit(onSubmit)}
         action=''
+       
         className='w-full flex flex-col gap-[1.5rem]'>
         <div className='group flex flex-col gap-[0.5rem]'>
           <label
@@ -342,7 +339,7 @@ const AuthPage = () => {
 
   const bannerImage = showForgotPassword ? forgotPasswordBanner : loginBanner;
   return (
-    <div className='flex flex-row w-full h-screen  xs:min-h-[600px] bg-[#F0F4F9] text-white '>
+    <div className='flex flex-row w-full h-screen  xs:min-h-[600px] bg-[#F0F4F9] '>
       <div className='hidden bg-[#EAF1FF] w-[48%] relative lg:flex flex-col justify-center items-center px-[1rem] '>
         <div className='mx-auto w-full flex justify-center'>
           <img src={bannerImage} className='h-auto w-[33rem]' />
