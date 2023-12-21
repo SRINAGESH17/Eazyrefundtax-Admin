@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 
 import { Select, Option } from "@material-tailwind/react";
 
-import PhoneInputWithCountry from "react-phone-number-input/react-hook-form";
+import PhoneInput from "react-phone-number-input";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 
@@ -87,19 +87,12 @@ const AdminCreateEmployee = () => {
                   Phone Number
                 </label>
 
-                <PhoneInputWithCountry
+                <PhoneInput
+                  initialValueFormat='national'
                   name='mobileNumber'
                   defaultCountry='IN'
-                  control={control}
-                  className='outline-none cursor-pointer rounded-[0.5rem] h-[3.2rem] border border-solid border-[#D1D4D7] px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
-                  rules={{
-                    required: "*This field is required.",
-                    validate: isValidPhoneNumber,
-                  }}
-                  style={{
-                    outline: "none",
-                  }}
-                  placeholder='Enter Mobile Number'
+                  style={{ outline: "none" }}
+                  className='border border-[#AFBACA] rounded-md outline-none px-[1rem] py-[0.5rem] text-[#3D4A5C] text-[0.9rem] placeholder-[#8897AE]'
                 />
 
                 {/* <input
