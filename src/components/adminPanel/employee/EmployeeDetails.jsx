@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, useOutletContext, useParams } from "react-router-dom";
+import { useAuth } from "../../../stores/AuthContext";
+import { AdminAuthorURL } from "../../../baseUrl/BaseUrl";
 
 import Stepper from "./Stepper";
 
@@ -9,6 +11,45 @@ const EmployeeDetails = () => {
   const { id } = useParams();
 
   const selectedUser = sampleData.find((user) => user.id == id);
+
+  const [employeeDetails, setEmployeeDetails] = useState({});
+
+  const { getAccessToken } = useAuth();
+
+  const fetchEmployeeDetails = async () => {
+    const token = await getAccessToken();
+
+    console.log(id);
+
+    const url = AdminAuthorURL.employee.getEmployeeById(id);
+
+    const options = {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const response = await fetch(url, options);
+
+    console.log(response);
+
+    if (response.ok) {
+      const responseData = await response.json();
+
+      const data = responseData.response;
+
+      setEmployeeDetails(data);
+
+      console.log(data);
+    }
+
+    console.log("token received in employee detaild", token);
+  };
+
+  useEffect(() => {
+    fetchEmployeeDetails();
+  }, []);
 
   return (
     <div
@@ -21,7 +62,7 @@ const EmployeeDetails = () => {
       <div className='flex flex-col gap-[1.5rem] lg:gap-[2.5rem]'>
         <Stepper />
 
-        <Outlet context={[selectedUser]} />
+        <Outlet context={[employeeDetails]} />
       </div>
     </div>
   );

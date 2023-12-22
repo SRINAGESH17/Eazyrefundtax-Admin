@@ -42,14 +42,13 @@ const PrivateRoute = ({ component: Component }) => {
   const { currentUser, userRole } = useAuth();
   return (
     <>
-      <Component />
-      {/* {currentUser && userRole?.admin ? (
+      {currentUser && userRole?.admin ? (
         <Suspense fallback={<Loader />}>
           <Component />
         </Suspense>
       ) : (
         <Navigate to='/auth' replace />
-      )} */}
+      )}
     </>
   );
 };

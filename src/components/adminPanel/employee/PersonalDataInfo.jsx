@@ -2,25 +2,94 @@ import { useState, useRef, useEffect } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { Icon } from "@iconify/react";
 
+import { useAuth } from "../../../stores/AuthContext";
+import { AdminAuthorURL } from "../../../baseUrl/BaseUrl";
+
 const PersonalDataInfo = () => {
-  const [selectedUser] = useOutletContext();
+  const [employeeDetails] = useOutletContext();
 
   const { id } = useParams();
 
-  console.log(selectedUser);
+  const { designation, email, identity, mobileNumber, name, photo } =
+    employeeDetails;
+
+  console.log(employeeDetails,"employee dertails");
+
+  // const identityDetails = {
+  //   identityPhoto: identity.url,
+  //   identityType: identity._IDType,
+  // };
 
   const imageRef = useRef(null);
 
   const [editProfile, setEditProfile] = useState(false);
 
   const [userDetails, setUserDetails] = useState({
-    name: selectedUser.name,
-    role: selectedUser.role,
-    phoneNumber: selectedUser.phoneNumber,
-    email: selectedUser.email,
+    name: name,
+    role: designation,
+    phoneNumber: mobileNumber,
+    email: email,
+    idType: identity?._IDType,
+    idNumber: identity?._IDNumber,
+    employeePhoto: photo,
+    idUrl: identity?.__IDURL,
   });
 
+  
+
   const [image, selectImage] = useState();
+
+  console.log(userDetails, "input user details");
+
+  const { getAccessToken } = useAuth();
+
+  const updateData = async (e) => {
+    e.preventDefault();
+
+    try {
+      const token = await getAccessToken();
+
+      const {
+        name,
+        role,
+        phoneNumber,
+        email,
+        idType,
+        idNumber,
+        employeePhoto,
+        idUrl,
+      } = userDetails;
+
+      const url = AdminAuthorURL.employee.updateEmployee(id);
+      const formData = new FormData();
+
+      formData.append("name", name);
+      formData.append("mobileNumber", phoneNumber);
+      formData.append("email", email);
+      formData.append("photo", employeePhoto);
+      formData.append("_IDURL", idUrl);
+      formData.append("designation", role);
+
+      formData.append("identityType", idType);
+      formData.append("identityNumber", idNumber);
+      // formData.append("state",data.state)
+      // formData.append("zipCode",data.zipCode)
+
+      const options = {
+        method: "PUT",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const response = await fetch(url, options);
+
+      console.log(response);
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   return (
     <div className='flex flex-col lg:flex-row lg:items-start gap-[3rem] lg:max-w-[700px] xl:max-w-[920px]  '>
@@ -30,6 +99,7 @@ const PersonalDataInfo = () => {
             ref={imageRef}
             type='file'
             accept='image/*'
+            value={userDetails.photo}
             style={{ display: "none" }}
             onChange={({ target: { files } }) => {
               if (files[0]) {
@@ -48,11 +118,11 @@ const PersonalDataInfo = () => {
             />
           </button>
           <img
-            src={(image && URL.createObjectURL(image)) || selectedUser.image}
+            src={(image && URL.createObjectURL(image)) || photo}
             className='h-[9rem]   w-full rounded-[0.5rem] '
           />
           <p className='text-[#8888A3] text-[0.8rem] lg:text-[1rem] font-[700] self-center'>
-            {selectedUser.name}
+            {name}
           </p>
         </div>
 
@@ -63,11 +133,11 @@ const PersonalDataInfo = () => {
             <Icon icon='mdi:eye' className='text-[1.1rem] text-[#000000]' />
           </button>
           <img
-            src={selectedUser.image}
+            src={identity?.url}
             className='h-[9rem] w-full  rounded-[0.5rem]'
           />
           <p className='text-[#8888A3] text-[0.8rem] lg:text-[1rem] font-[700] self-center'>
-            Pan
+            {identity?._IDType}
           </p>
         </div>
       </div>
@@ -83,7 +153,9 @@ const PersonalDataInfo = () => {
           </button>
         </div>
 
-        <form className='flex flex-col gap-[1rem] lg:gap-[1.5rem]'>
+        <form
+          onSubmit={updateData}
+          className='flex flex-col gap-[1rem] lg:gap-[1.5rem]'>
           <div className='flex flex-col gap-[1rem]'>
             <div
               style={{ background: "rgba(209, 212, 215, 0.2)" }}
@@ -103,7 +175,7 @@ const PersonalDataInfo = () => {
                 />
               ) : (
                 <p className='text-[0.5rem] lg:text-[0.7rem] text-[#1A1616] font-[600]'>
-                  {selectedUser.name}
+                  {name}
                 </p>
               )}
             </div>
@@ -119,13 +191,13 @@ const PersonalDataInfo = () => {
                   type='text'
                   value={userDetails.role}
                   onChange={(e) =>
-                    setUserDetails({ ...userDetails, name: e.target.value })
+                    setUserDetails({ ...userDetails, role: e.target.value })
                   }
                   className='border-none bg-transparent outline-none text-[0.5rem] lg:text-[0.7rem]'
                 />
               ) : (
                 <p className='text-[0.5rem] lg:text-[0.7rem] text-[#1A1616] font-[600]'>
-                  {selectedUser.name}
+                  {designation}
                 </p>
               )}
             </div>
@@ -141,13 +213,13 @@ const PersonalDataInfo = () => {
                   type='text'
                   value={userDetails.phoneNumber}
                   onChange={(e) =>
-                    setUserDetails({ ...userDetails, name: e.target.value })
+                    setUserDetails({ ...userDetails, mobileNumber: e.target.value })
                   }
                   className='border-none bg-transparent outline-none text-[0.5rem] lg:text-[0.7rem]'
                 />
               ) : (
                 <p className='text-[0.5rem] lg:text-[0.7rem] text-[#1A1616] font-[600]'>
-                  {selectedUser.name}
+                  {mobileNumber}
                 </p>
               )}
             </div>
@@ -163,13 +235,13 @@ const PersonalDataInfo = () => {
                   type='text'
                   value={userDetails.email}
                   onChange={(e) =>
-                    setUserDetails({ ...userDetails, name: e.target.value })
+                    setUserDetails({ ...userDetails, email: e.target.value })
                   }
                   className='border-none bg-transparent outline-none text-[0.5rem] lg:text-[0.7rem]'
                 />
               ) : (
                 <p className='text-[0.5rem] lg:text-[0.7rem] text-[#1A1616] font-[600]'>
-                  {selectedUser.name}
+                  {email}
                 </p>
               )}
             </div>
@@ -191,7 +263,7 @@ const PersonalDataInfo = () => {
                 />
               ) : (
                 <p className='text-[0.5rem] lg:text-[0.7rem] text-[#1A1616] font-[600]'>
-                  {selectedUser.name}
+                  {/* {selectedUser.name} */}
                 </p>
               )}
             </div>
@@ -205,15 +277,15 @@ const PersonalDataInfo = () => {
               {editProfile ? (
                 <input
                   type='text'
-                  value={userDetails.name}
+                  value={userDetails.idType}
                   onChange={(e) =>
-                    setUserDetails({ ...userDetails, name: e.target.value })
+                    setUserDetails({ ...userDetails, idType: e.target.value })
                   }
                   className='border-none bg-transparent outline-none text-[0.5rem] lg:text-[0.7rem]'
                 />
               ) : (
                 <p className='text-[0.5rem] lg:text-[0.7rem] text-[#1A1616] font-[600]'>
-                  {selectedUser.name}
+                  {identity?._IDType}
                 </p>
               )}
             </div>
@@ -227,22 +299,24 @@ const PersonalDataInfo = () => {
               {editProfile ? (
                 <input
                   type='text'
-                  value={userDetails.name}
+                  value={userDetails.idNumber}
                   onChange={(e) =>
-                    setUserDetails({ ...userDetails, name: e.target.value })
+                    setUserDetails({ ...userDetails, idNumber: e.target.value })
                   }
                   className='border-none bg-transparent outline-none text-[0.5rem] lg:text-[0.7rem]'
                 />
               ) : (
                 <p className='text-[0.5rem] lg:text-[0.7rem] text-[#1A1616] font-[600]'>
-                  {selectedUser.name}
+                  {identity?._IDNumber}
                 </p>
               )}
             </div>
           </div>
 
           {editProfile && (
-            <button className='bg-[#C5090A] text-[#fff] text-[0.8rem] w-[7rem] py-[0.5rem] rounded-[0.5rem] self-end '>
+            <button
+              type='submit'
+              className='bg-[#C5090A] text-[#fff] text-[0.8rem] w-[7rem] py-[0.5rem] rounded-[0.5rem] self-end '>
               Save
             </button>
           )}

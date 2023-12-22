@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+import { useAuth } from "../../../stores/AuthContext";
+import { AdminAuthorURL } from "../../../baseUrl/BaseUrl";
 
 import { Icon } from "@iconify/react";
 
@@ -19,6 +22,12 @@ const EmployeeList = () => {
 
   const [sampleData] = useOutletContext();
 
+  const [employeeData, setEmployeeData] = useState([]);
+  const [searchKey, setSearchKey] = useState("");
+
+  const [page, setPage] = useState(1);
+  const [totalList, setTotalList] = useState();
+
   const columns = [
     {
       name: "SL",
@@ -31,8 +40,8 @@ const EmployeeList = () => {
       cell: (row) => (
         <button
           className='border-none'
-          onClick={() => navigate(`/employee/${row.id}`)}>
-          <p className='underline'>{row.employeeId}</p>
+          onClick={() => navigate(`/employee/${row._id}`)}>
+          <p className='underline'>{row.id}</p>
         </button>
       ),
     },
@@ -40,7 +49,6 @@ const EmployeeList = () => {
       name: "Employee Name",
       cell: (row) => (
         <div className='flex flex-row items-center gap-[1rem]'>
-          <img src={row.image} className={"h-[3rem] w-[3rem] rounded-full"} />
           <p>{row.name}</p>
         </div>
       ),
@@ -51,15 +59,15 @@ const EmployeeList = () => {
       cell: (row) => (
         <div className='flex flex-col gap-[0.2rem]'>
           <p>{row.email}</p>
-          <p>{row.phoneNumber}</p>
+          <p>{row.mobileNumber}</p>
         </div>
       ),
       width: "300px",
     },
     {
       name: "Role",
-      id: "role",
-      selector: (row, index) => index + 1,
+      id: "designation",
+      selector: (row, index) => row.designation,
     },
     {
       name: "Assign Employee to Admin",
@@ -220,6 +228,49 @@ const EmployeeList = () => {
       position: toast.POSITION.TOP_CENTER,
     });
   };
+  const { getAccessToken } = useAuth();
+
+  const fetchEmployeeDetails = async () => {
+    const token = await getAccessToken();
+
+    const url = AdminAuthorURL.employee.getAllEmployees(searchKey, page);
+
+    const options = {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const response = await fetch(url, options);
+
+    const responseData = await response.json();
+
+    console.log(responseData);
+
+    if (response.ok) {
+      const employeesArray = responseData.response.limitedData;
+
+      setEmployeeData(employeesArray);
+
+      setTotalList(responseData.totalData);
+    } else {
+      setEmployeeData([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchEmployeeDetails();
+  }, []);
+
+  const handleUserInput = (e) => {
+    setSearchKey(e.target.value);
+  };
+
+  useEffect(() => {
+    console.log("search input is triggered");
+    fetchEmployeeDetails();
+  }, [searchKey, page]);
 
   return (
     <div className='flex flex-col   lg:bg-[#fff] lg:rounded-[0.5rem] lg:shadow-shadow   '>
@@ -239,6 +290,8 @@ const EmployeeList = () => {
             <div className='flex flex-row h-[2.5rem] w-full '>
               <input
                 type='text'
+                value={searchKey}
+                onChange={handleUserInput}
                 className='flex-1 xl:w-[15rem] outline-none border-r-0  border-[0.5px] border-solid border-[#D1D4D7] rounded-s-[0.5rem] px-[1rem] py-[0.5rem] text-black font-[500] text-[0.7rem]  placeholder-[#D1D4D7]'
                 placeholder='Search by Name or Phone or Email'
               />
@@ -296,10 +349,17 @@ const EmployeeList = () => {
         <div>
           <DataTable
             columns={columns}
-            data={sampleData}
+            data={employeeData}
             customStyles={customStyles}
             pagination
-            paginationComponent={CustomPagination}
+            paginationComponent={() =>
+              CustomPagination({
+                rowsPerPage: 10,
+                rowCount: totalList,
+                currentPage: page,
+                onChangePage: setPage,
+              })
+            }
           />
         </div>
       </div>

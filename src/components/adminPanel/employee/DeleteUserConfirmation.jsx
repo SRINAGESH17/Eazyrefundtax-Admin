@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import {useAuth} from "../../../stores/AuthContext"
+
 const DeleteUserConfirmation = ({ close }) => {
   return (
     <div className='bg-[#FFF] rounded-[1rem] lg:rounded-[1.2rem]  lg:w-[31rem] max-w-[560px] p-[1.5rem] lg:p-[2.5rem] flex flex-col gap-[1rem] mx-[2rem]'>

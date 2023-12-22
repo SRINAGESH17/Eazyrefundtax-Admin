@@ -10,6 +10,7 @@ import { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import employeeProfile from "../../assets/employeeProfile.png";
 import CustomPagination from "../../helpers/CustomPagination";
+import PhoneInput from "react-phone-number-input";
 
 const customStyles = {
   headRow: {
@@ -262,6 +263,7 @@ const AdminSubAdmin = () => {
                     </label>
                     <input
                       type='text'
+                      {...register("fullName")}
                       placeholder='Ex : Manikanta'
                       className='outline-none rounded-[0.5rem] h-[3.2rem] border border-solid border-[#D1D4D7] px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
                     />
@@ -280,6 +282,7 @@ const AdminSubAdmin = () => {
                         />
                       </div>
                       <input
+                        {...register("email")}
                         type='email'
                         placeholder='Enter Email Address'
                         className='outline-none flex-1 rounded-[0.5rem] border-none px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
@@ -290,16 +293,19 @@ const AdminSubAdmin = () => {
                     <label className='text-[#1A1616] text-[0.6rem] lg:text-[0.8rem] font-[600]'>
                       Phone Number
                     </label>
-                    <PhoneInputWithCountry
+
+                    <PhoneInput
                       name='mobileNumber'
                       defaultCountry='IN'
+                      {...register("mobileNumber")}
                       control={control}
-                      className='outline-none cursor-pointer rounded-[0.5rem] h-[3.2rem] border border-solid border-[#D1D4D7] px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
+                      className='outline-none cursor-pointer rounded-[0.5rem] h-full border border-solid border-[#D1D4D7] px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
                       rules={{
                         required: "*This field is required.",
                         validate: isValidPhoneNumber,
                       }}
                       style={{
+                        height: "40px",
                         outline: "none",
                       }}
                       placeholder='Enter Mobile Number'
@@ -325,6 +331,7 @@ const AdminSubAdmin = () => {
                       </div>
                       <input
                         type='password'
+                        {...register("password")}
                         placeholder='Enter password'
                         className='outline-none flex-1  border-none px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
                       />
