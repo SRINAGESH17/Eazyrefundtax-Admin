@@ -37,6 +37,9 @@ import InvoiceList from "../components/adminPanel/invoiceList/InvoiceList";
 import RegisteredClients from "../components/adminPanel/registeredClients/RegisteredClients";
 import Sms from "../components/adminPanel/sms/Sms";
 import ReferalList from "../components/adminPanel/ReferalList";
+import TaxYear from "../components/adminPanel/taxType/TaxYear";
+import TaxYearDoc from "../components/adminPanel/taxType/TaxYearDoc";
+import TaxYearReturn from "../components/adminPanel/taxType/TaxYearReturn";
 
 const PrivateRoute = ({ component: Component }) => {
   const { currentUser, userRole } = useAuth();
@@ -47,7 +50,7 @@ const PrivateRoute = ({ component: Component }) => {
           <Component />
         </Suspense>
       ) : (
-        <Navigate to='/auth' replace />
+        <Navigate to="/auth" replace />
       )}
     </>
   );
@@ -224,6 +227,32 @@ export const router = createBrowserRouter([
             <PrivateRoute component={TaxType} />
           </Suspense>
         ),
+        children: [
+          {
+            path: "",
+            element: (
+              <Suspense fallback={<Loader />}>
+                <PrivateRoute component={TaxYear} />
+              </Suspense>
+            ),
+          },
+          {
+            path: "year-doc",
+            element: (
+              <Suspense fallback={<Loader />}>
+                <PrivateRoute component={TaxYearDoc} />
+              </Suspense>
+            ),
+          },
+          {
+            path: "year-return",
+            element: (
+              <Suspense fallback={<Loader />}>
+                <PrivateRoute component={TaxYearReturn} />
+              </Suspense>
+            ),
+          },
+        ],
       },
       {
         path: "invoice-list",

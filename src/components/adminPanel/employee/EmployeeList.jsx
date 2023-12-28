@@ -273,7 +273,7 @@ const EmployeeList = () => {
   }, [searchKey, page]);
 
   return (
-    <div className='flex flex-col   lg:bg-[#fff] lg:rounded-[0.5rem] lg:shadow-shadow   '>
+    <div className='flex flex-col   lg:bg-[#fff] lg:rounded-[0.5rem] lg:shadow-shadow'>
       <div className='py-[1rem] lg:p-[1.5rem]'>
         <h1 className='text-[0.8rem] text-[#1A1616] font-[700] lg:text-[1rem]'>
           List of the employees

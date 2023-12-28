@@ -6,11 +6,18 @@ module.exports = withMT({
   theme: {
     extend: {
       fontFamily: {
-        manrope: ["Manrope", "sans-serif"],
-        poppins: ["Poppins", "sans-serif"],
-        dmSans: ["DM Sans", "sans-serif"],
-        mulish: ["Mulish", "sans-serif"],
-        lato: ["Lato", "sans-serif"],
+        "amulya_bold":['amulya_bold','sans-serf'],
+        "amulya_boldItalic":['amulya_boldItalic','sans-serf'],
+        "amulya_italic":['amulya_italic','sans-serf'],
+        "amulya_light":['amulya_light','sans-serf'],
+        "amulya_lightItalic":['amulya_lightItalic','sans-serf'],
+        "amulya_medium":['amulya_medium','sans-serf'],
+        "amulya_mediumItalic":['amulya_mediumItalic','sans-serf'],
+        "amulya_regular":['amulya_regular','sans-serf'],
+        "amulya_variable":['amulya_variable','sans-serf'],
+        "amulya_variableItalic":['amulya_variableItalic','sans-serf'],
+
+
       },
       colors: {
         lightBlack: "rgba(0, 0, 0, 0.70)",
