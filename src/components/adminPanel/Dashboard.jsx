@@ -343,8 +343,8 @@ const customStyles = {
 
 const Dashboard = () => {
   return (
-    <div className='font-lato m-[1.2rem] lg:m-[2.5rem] bg-[#FAFAFA]'>
-      <div className='bg-[#FFF] lg:shadow-shadow  lg:p-[2rem] flex flex-col gap-[1rem] lg:gap-[2.5rem] '>
+    <div className='font-lato p-[1.2rem] lg:p-[2.5rem] bg-[#FAFAFA]'>
+      <div className='bg-[#FFF] lg:rounded-[0.5rem] lg:shadow-shadow  lg:p-[2rem] flex flex-col gap-[1rem] lg:gap-[2.5rem] '>
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[1rem] lg:gap-[2rem] lg:pr-[4.5rem]'>
           <Card label={"Total Employee’s"} text={100} />
           <Card label={"Upload File"} text={50} />

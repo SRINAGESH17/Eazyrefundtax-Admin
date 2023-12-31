@@ -8,6 +8,7 @@ import { Select, Option } from "@material-tailwind/react";
 import PhoneInputWithCountry from "react-phone-number-input";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
+import { ThreeDots } from "react-loader-spinner";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.minimal.css";
@@ -32,7 +33,7 @@ const AdminCreateEmployee = () => {
 
   const identityRef = useRef(null);
 
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState();
 
   const [role, selectRole] = useState("");
 
@@ -59,94 +60,97 @@ const AdminCreateEmployee = () => {
   const [confirmPassword, setPassword] = useState();
 
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
+  const [showLoader, setShowLoader] = useState(false);
 
   const { getAccessToken } = useAuth();
   console.log(value);
 
   const submitData = async (data) => {
     if (data.password !== confirmPassword) {
-      setConfirmPasswordError(
-        "Password doesn't match please re-enter correctly"
-      );
-    }
+      setConfirmPasswordError("Password doesn't match ");
+    } else {
+      setConfirmPasswordError("");
+      try {
+        setShowLoader(true);
 
-    try {
+        console.log(data, "data for creating employee");
+        const formData = new FormData();
+        formData.append("name", data.name);
+        formData.append("mobileNumber", value);
+        formData.append("email", data.email);
+        formData.append("password", data.password);
+        formData.append("photo", employeeImage);
+        formData.append("_IDURL", identityFile);
+        formData.append("designation", data.designation);
+        formData.append("role", data.role);
+        formData.append("identityType", data.identityType);
+        formData.append("identityNumber", data.identityNumber);
+        formData.append("state", data.state);
+        formData.append("zipCode", data.zipCode);
 
+        console.log(formData);
 
-      console.log(data,"data for creating employee")
-      const formData = new FormData();
-      formData.append("name", data.name);
-      formData.append("mobileNumber", value);
-      formData.append("email", data.email);
-      formData.append("password", data.password);
-      formData.append("photo", employeeImage);
-      formData.append("_IDURL", identityFile);
-      formData.append("designation", data.designation);
-      formData.append("role", data.role);
-      formData.append("identityType", data.identityType);
-      formData.append("identityNumber", data.identityNumber);
-      formData.append("state", data.state);
-      formData.append("zipCode", data.zipCode);
+        const token = await getAccessToken();
 
-      console.log(formData);
+        console.log(token);
 
-      const token = await getAccessToken();
+        const url = AdminAuthorURL.employee.createEmployee;
 
-      console.log(token);
+        console.log(url);
 
-      const url = AdminAuthorURL.employee.createEmployee;
+        const options = {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
 
-      console.log(url);
+        const response = await fetch(url, options);
 
-      const options = {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
+        const responseObj = await response.json();
 
-      const response = await fetch(url, options);
+        if (response.ok) {
+          setShowLoader(false);
+          toast.success(responseObj.message, {
+            position: toast.POSITION.TOP_RIGHT,
+            theme: "colored",
+            draggable: true,
+          });
 
-      const responseObj = await response.json();
+          reset({
+            name: "",
+            email: "",
+            mobileNumber: "",
+            password: "",
+            photo: "",
+            designation: "",
+            role: "",
+            identifyType: "",
+            identityNumber: "",
+            state: "",
+            zipCode: "",
+          });
 
-      if (response.ok) {
-        toast.success(responseObj.message, {
-          position: toast.POSITION.TOP_RIGHT,
-          theme: "colored",
-          draggable: true,
-        });
+          setValue("");
+          setConfirmPassword("");
 
-        reset({
-          name: "",
-          email: "",
-          mobileNumber: "",
-          password: "",
-          photo: "",
-          designation: "",
-          role: "",
-          identifyType: "",
-          identityNumber: "",
-          state: "",
-          zipCode: "",
-        });
+          setIdentityFile();
+          setEmployeeImage();
 
-        setValue("");
-        setConfirmPassword("");
-
-        setIdentityFile();
-        setEmployeeImage();
-
-        console.log(responseObj);
-      } else {
-        toast.error(responseObj.message, {
-          position: toast.POSITION.TOP_RIGHT,
-          theme: "colored",
-          draggable: true,
-        });
+          console.log(responseObj);
+        } else {
+          setShowLoader(false);
+          toast.error(responseObj.message, {
+            position: toast.POSITION.TOP_RIGHT,
+            theme: "colored",
+            draggable: true,
+          });
+        }
+      } catch (e) {
+        setShowLoader(false);
+        console.log(e);
       }
-    } catch (e) {
-      console.log(e);
     }
   };
 
@@ -216,7 +220,7 @@ const AdminCreateEmployee = () => {
                     type='email'
                     name='email'
                     {...register("email", {
-                      required: "*This field is required.",
+                      required: "This field is required.",
                       pattern: /^\S+@\S+$/i,
                     })}
                     placeholder='Enter Email Address'
@@ -238,6 +242,7 @@ const AdminCreateEmployee = () => {
                 <label className='text-[#1A1616] text-[0.6rem] lg:text-[0.8rem] font-[600]'>
                   Phone Number
                 </label>
+
                 <PhoneInputWithCountry
                   defaultCountry='IN'
                   name='mobileNumber'
@@ -245,7 +250,7 @@ const AdminCreateEmployee = () => {
                   onChange={setValue}
                   className='outline-none cursor-pointer rounded-[0.5rem]  border border-solid border-[#D1D4D7] px-[1rem] py-0 text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem] font-[500] placeholder:text-[#E1D6D5]'
                   rules={{
-                    required: "*This field is required.",
+                    required: "This field is required.",
                     validate: isValidPhoneNumber,
                   }}
                   style={{
@@ -254,7 +259,6 @@ const AdminCreateEmployee = () => {
                   }}
                   placeholder='Enter Mobile Number'
                 />
-
                 {errors?.mobileNumber?.type === "required" && (
                   <div className='text-sm font-bold text-[#E92215]'>
                     {errors.mobileNumber.message}
@@ -336,7 +340,7 @@ const AdminCreateEmployee = () => {
                 </div>
 
                 {confirmPasswordError !== "" && (
-                  <p className='text-[red] text-[0.7rem] font-bold'>
+                  <p className='text-red-600 font-bold text-sm'>
                     {confirmPasswordError}
                   </p>
                 )}
@@ -358,7 +362,7 @@ const AdminCreateEmployee = () => {
                       label={
                         <p className='text-[#E1D6D5] '>Select Role Type</p>
                       }
-                      className='text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem] font-[500] text-[#E1D6D5]'
+                      className='text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem] font-[500] text-[#000]'
                       size='lg'>
                       <Option value='Caller'>Caller</Option>
                       <Option value='Preparer'>Preparer</Option>
@@ -434,7 +438,7 @@ const AdminCreateEmployee = () => {
                     <Select
                       {...field}
                       label={<p className='text-[#E1D6D5] '>Identify Type</p>}
-                      className=' text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem]  font-[500] text-[#E1D6D5]'
+                      className=' text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem]  font-[500] text-[#000]'
                       size='lg'>
                       <Option value='aadhar'>Aadhar</Option>
                       <Option value={"pancard"}>Pancard</Option>
@@ -612,11 +616,27 @@ const AdminCreateEmployee = () => {
               className='rounded-[1rem] bg-[#D1D4D7] border-none outline-none py-[1rem] w-full lg:w-[11rem] text-[0.8rem] text-[#000] font-[500]'>
               Reset
             </button>
-            <button
-              type='submit'
-              className='rounded-[1rem] bg-[#C5090A] border-none outline-none py-[1rem] w-full lg:w-[11rem] text-[0.8rem] text-white font-[500]'>
-              Submit
-            </button>
+
+            {showLoader ? (
+              <div className='w-full lg:w-[11rem] flex justify-center items-center '>
+                <ThreeDots
+                  height='50'
+                  width='50'
+                  radius='9'
+                  color='#C5090A'
+                  ariaLabel='three-dots-loading'
+                  wrapperStyle={{}}
+                  wrapperClassName=''
+                  visible={true}
+                />
+              </div>
+            ) : (
+              <button
+                type='submit'
+                className='rounded-[1rem] bg-[#C5090A] border-none outline-none py-[1rem] w-full lg:w-[11rem] text-[0.8rem] text-white font-[500]'>
+                Submit
+              </button>
+            )}
           </div>
         </form>
       </div>

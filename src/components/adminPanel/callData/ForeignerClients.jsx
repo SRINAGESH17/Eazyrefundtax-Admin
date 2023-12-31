@@ -12,6 +12,20 @@ import CustomCheckbox from "../../../helpers/CustomCheckbox";
 import { AdminAuthorURL } from "../../../baseUrl/BaseUrl";
 import { useAuth } from "../../../stores/AuthContext";
 
+const statuses = [
+  "REGISTERED",
+  "CALLBACK",
+  "WRONGNUMBER",
+  "NOTINTERESTED",
+  "DUPLICATE",
+  "ALREADYFILED",
+  "FIRST",
+  "FOREIGNER",
+  "INTERESTED",
+  "MAILSENT",
+  "PENDING",
+];
+
 const ForeignerClients = () => {
   const [callsData, setCallsData] = useState([]);
   const [fromDate, setFromDate] = useState(null);
@@ -21,8 +35,6 @@ const ForeignerClients = () => {
     mode: "range",
     format: "d-m-Y",
   };
-
-  const selectRef = useRef(null);
 
   const handleDateChange = (selectedDates) => {
     console.log(selectedDates.length);
@@ -281,11 +293,12 @@ const ForeignerClients = () => {
           />
 
           <div className='rounded-[4px] flex flex-row items-center border border-solid border-[#D1D4D7] h-[1.9rem] pr-[0.8rem]'>
-            <select
-              ref={selectRef}
-              className='border-none outline-none text-[#8888A3] text-[0.6rem] px-[0.8rem]'>
-              <option>Bulk Action</option>
-              <option>Single</option>
+            <select className='border-none outline-none text-[#8888A3] text-[0.6rem] px-[0.8rem] capitalize'>
+              {statuses.map((status, index) => (
+                <option key={index} value={status}>
+                  {status.toLowerCase()}
+                </option>
+              ))}
             </select>
           </div>
         </div>

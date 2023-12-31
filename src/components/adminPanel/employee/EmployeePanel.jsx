@@ -127,7 +127,7 @@ const sampleData = [
 
 const EmployeePanel = () => {
   return (
-    <div className='font-lato m-[1.2rem] lg:m-[2.5rem] bg-[#FAFAFA]  '>
+    <div className='font-lato p-[1.2rem] lg:p-[2.5rem] bg-[#FAFAFA]  '>
       <Outlet context={[sampleData]} />
     </div>
   );

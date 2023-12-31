@@ -14,6 +14,7 @@ import PhoneInput from "react-phone-number-input";
 import { useAuth } from "../../stores/AuthContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { ThreeDots } from "react-loader-spinner";
 
 import { AdminAuthorURL } from "../../baseUrl/BaseUrl";
 
@@ -87,6 +88,9 @@ const AdminSubAdmin = () => {
 
   const [page, setPage] = useState(1);
   const [totalList, setTotalList] = useState();
+
+  const [showLoader, setShowLoader] = useState(false);
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
 
   const [values, setValues] = useState({
     name: "",
@@ -298,7 +302,6 @@ const AdminSubAdmin = () => {
     },
   ];
 
-
   const sampleData = [
     {
       adminId: "12345",
@@ -344,8 +347,10 @@ const AdminSubAdmin = () => {
 
   const updateData = async (data) => {
     console.log("updata data called", data, image);
+    setShowLoader(true);
     try {
       setPasswordStatus(true);
+
       const token = await getAccessToken();
 
       const url = AdminAuthorURL.subAdmin.updateSubAdmin(subadminId);
@@ -378,6 +383,8 @@ const AdminSubAdmin = () => {
       const responseObj = await response.json();
 
       if (response.ok) {
+        setShowLoader(false);
+        setAdminView(false);
         console.log(response);
 
         console.log(responseObj);
@@ -385,7 +392,7 @@ const AdminSubAdmin = () => {
           position: toast.POSITION.TOP_RIGHT,
           theme: "colored",
           draggable: true,
-          autoClose:5000
+          autoClose: 5000,
         });
 
         reset({
@@ -424,119 +431,124 @@ const AdminSubAdmin = () => {
           position: toast.POSITION.TOP_RIGHT,
           theme: "colored",
           draggable: true,
-          autoClose:5000
+          autoClose: 5000,
         });
       }
     } catch (e) {
       console.log(e);
     }
+    setShowLoader(false);
   };
 
   const createSubAdmin = async (data) => {
-    try {
-      setPasswordStatus(true);
-      setImageError(false);
-      const token = await getAccessToken();
+    if (data.password !== data.confirmPassword) {
+      setConfirmPasswordError("Password doesn't match");
+    } else {
+      setConfirmPasswordError("");
+      try {
+        setPasswordStatus(true);
+        setImageError(false);
+        setShowLoader(true);
+        const token = await getAccessToken();
 
-      const url = AdminAuthorURL.subAdmin.createSubAdmin;
+        const url = AdminAuthorURL.subAdmin.createSubAdmin;
 
-      console.log("create subadmin is called");
+        console.log("create subadmin is called");
 
-      const formData = new FormData();
+        const formData = new FormData();
 
-      formData.append("name", data.name);
-      formData.append("email", data.email);
-      formData.append("zipCode", data.zipCode);
-      formData.append("password", data.password);
-      formData.append("state", data.state);
-      formData.append("mobileNumber", data.mobileNumber);
-      formData.append("photo", image);
-      formData.append("permissions", JSON.stringify(permissions));
+        formData.append("name", data.name);
+        formData.append("email", data.email);
+        formData.append("zipCode", data.zipCode);
+        formData.append("password", data.password);
+        formData.append("state", data.state);
+        formData.append("mobileNumber", data.mobileNumber);
+        formData.append("photo", image);
+        formData.append("permissions", JSON.stringify(permissions));
 
-      console.log();
+        console.log();
 
-      const options = {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
+        const options = {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
 
-      const response = await fetch(url, options);
-      const responseObj = await response.json();
+        const response = await fetch(url, options);
+        const responseObj = await response.json();
 
-      if (response.ok) {
-        console.log(response);
+        if (response.ok) {
+          setShowLoader(false);
+          console.log(response);
 
-        console.log(responseObj);
-        toast.success(responseObj.message, {
+          console.log(responseObj);
+          toast.success(responseObj.message, {
+            position: toast.POSITION.TOP_RIGHT,
+            theme: "colored",
+            draggable: true,
+            autoClose: 5000,
+          });
+
+          reset({
+            name: "",
+            email: "",
+            mobileNumber: "",
+            password: "",
+            confirmPassword: "",
+            photo: "",
+            designation: "",
+            role: "",
+            identifyType: "",
+            identityNumber: "",
+            state: "",
+            zipCode: "",
+          });
+          selectImage();
+          setMobileNumber();
+          selectImage();
+
+          setPermissions({
+            employeeData: false,
+            callData: false,
+            document: false,
+            taxType: false,
+            invoice: false,
+            clients: false,
+            sms: false,
+          });
+
+          setConfirmPassword("");
+
+          console.log(response, "response");
+        } else {
+          setShowLoader(false);
+          toast.error(responseObj.message, {
+            position: toast.POSITION.TOP_RIGHT,
+            theme: "colored",
+            draggable: true,
+            autoClose: 5000,
+          });
+        }
+      } catch (e) {
+        setShowLoader(false);
+        toast.success(e.message, {
           position: toast.POSITION.TOP_RIGHT,
           theme: "colored",
           draggable: true,
-          autoClose:5000
+          autoClose: 5000,
         });
-
-        reset({
-          name: "",
-          email: "",
-          mobileNumber: "",
-          password: "",
-          confirmPassword: "",
-          photo: "",
-          designation: "",
-          role: "",
-          identifyType: "",
-          identityNumber: "",
-          state: "",
-          zipCode: "",
-        });
-        selectImage();
-        setMobileNumber();
-        selectImage();
-
-        setPermissions({
-          employeeData: false,
-          callData: false,
-          document: false,
-          taxType: false,
-          invoice: false,
-          clients: false,
-          sms: false,
-        });
-
-        setConfirmPassword("");
-
-        console.log(response, "response");
-      } else {
-        toast.error(responseObj.message, {
-          position: toast.POSITION.TOP_RIGHT,
-          theme: "colored",
-          draggable: true,
-          autoClose:5000
-        });
+        console.log(e);
       }
-    } catch (e) {
-      toast.success(e.message, {
-        position: toast.POSITION.TOP_RIGHT,
-          theme: "colored",
-          draggable: true,
-          autoClose:5000
-      });
-      console.log(e);
     }
   };
 
   const submitData = async (data) => {
-    if (data.password !== data.confirmPassword) {
-      setPasswordStatus(false);
+    if (adminView) {
+      updateData(data);
     } else {
-      console.log(adminView);
-      if (adminView) {
-        updateData(data);
-      } else {
-        createSubAdmin(data);
-      }
+      createSubAdmin(data);
     }
   };
 
@@ -600,16 +612,16 @@ const AdminSubAdmin = () => {
   console.log(page, "page changed");
 
   const contextClass = {
-    success: "bg-[#00C041] text-white",
-    error: "bg-red-600 text-white",
-    info: "bg-gray-600 text-white",
-    warning: "bg-orange-400 text-white",
-    default: "bg-indigo-600 text-white",
-    dark: "bg-white-600 font-gray-300 text-white",
+    success: "bg-[#00C041] ",
+    error: "bg-red-600 ",
+    info: "bg-gray-600 ",
+    warning: "bg-orange-400 ",
+    default: "bg-indigo-600 ",
+    dark: "bg-white-600 font-gray-300 ",
   };
 
   return (
-    <div className='font-lato m-[1.2rem] lg:m-[2.5rem] bg-[#FAFAFA]'>
+    <div className='font-lato p-[1.2rem] lg:p-[2.5rem] bg-[#FAFAFA]'>
       <div className='flex flex-col   lg:bg-[#fff] lg:rounded-[0.5rem] lg:shadow-shadow   '>
         <div>
           <div className='py-[1rem] lg:p-[1.5rem]'>
@@ -660,11 +672,26 @@ const AdminSubAdmin = () => {
                     </button>
                   )}
 
-                  <button
-                    type='submit'
-                    className='h-[2.3rem]  lg:w-[10rem] px-[2.5rem] lg:px-[1rem]  shrink-0 flex justify-center items-center bg-[#C5090A] rounded-[0.5rem] text-[#FFF] text-[0.5rem] lg:text-[0.8rem] font-[500]'>
-                    {adminView ? "Save" : "Create Sub Admin"}
-                  </button>
+                  {showLoader ? (
+                    <div className='h-[2.3rem] px-[2.5rem] lg:w-[10rem] flex justify-center items-center '>
+                      <ThreeDots
+                        height='50'
+                        width='50'
+                        radius='9'
+                        color='#C5090A'
+                        ariaLabel='three-dots-loading'
+                        wrapperStyle={{}}
+                        wrapperClassName=''
+                        visible={true}
+                      />
+                    </div>
+                  ) : (
+                    <button
+                      type='submit'
+                      className='h-[2.3rem]  lg:w-[10rem] px-[2.5rem] lg:px-[1rem]  shrink-0 flex justify-center items-center bg-[#C5090A] rounded-[0.5rem] text-[#FFF] text-[0.5rem] lg:text-[0.8rem] font-[500]'>
+                      {adminView ? "Save" : "Create Sub Admin"}
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -705,7 +732,7 @@ const AdminSubAdmin = () => {
                       <input
                         name='email'
                         {...register("email", {
-                          required: "*This field is required.",
+                          required: "This field is required.",
                           pattern: /^\S+@\S+$/i,
                         })}
                         type='email'
@@ -736,7 +763,7 @@ const AdminSubAdmin = () => {
                       onChange={setMobileNumber}
                       className='outline-none cursor-pointer rounded-[0.5rem]  border border-solid border-[#D1D4D7] px-[1rem] py-0 text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem] font-[500] placeholder:text-[#E1D6D5]'
                       rules={{
-                        required: "*This field is required.",
+                        required: "This field is required.",
                         validate: isValidPhoneNumber,
                       }}
                       style={{
@@ -842,6 +869,11 @@ const AdminSubAdmin = () => {
                             Password doesn't match
                           </p>
                         )}
+                        {confirmPasswordError !== "" && (
+                          <p className='text-[red] text-[0.7rem] font-bold'>
+                            {confirmPasswordError}
+                          </p>
+                        )}
                       </div>
                     </>
                   )}
@@ -895,7 +927,6 @@ const AdminSubAdmin = () => {
 
                   {!adminView ? (
                     <input
-                    
                       style={{ display: "none" }}
                       type='file'
                       accept='image/*'
@@ -1154,7 +1185,6 @@ const AdminSubAdmin = () => {
                 className='flex w-full lg:w-[15rem] outline-none border-r-0  border-[0.5px] border-solid border-[#D1D4D7] rounded-s-[0.5rem] px-[1rem] py-[0.5rem] text-black font-[500] text-[0.7rem]  placeholder-[#D1D4D7]'
                 placeholder='Search by Name or Phone or Email'
               />
-             
 
               <button
                 style={{
@@ -1166,16 +1196,6 @@ const AdminSubAdmin = () => {
             </div>
 
             <div className='flex flex-row items-center gap-[1rem]'>
-              {/* <select
-                className='border-none bg-transparent outline-none text-[#1A1616] text-[0.8rem] lg:text-[1rem] font-[500]  shrink-0'
-                placeholder='Select Status'>
-                <option disabled selected>
-                  Select Status
-                </option>
-                <option>inProgress</option>
-                <option>Completed</option>
-              </select> */}
-
               <button className='rounded-[0.5rem] w-full sm:w-[8rem] flex flex-row justify-center items-center gap-[0.6rem] p-[0.5rem] bg-[#C5090A] text-[#FFF] font-[700] text-[0.7rem] '>
                 <Icon
                   icon='humbleicons:download-alt'

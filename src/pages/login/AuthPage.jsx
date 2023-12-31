@@ -18,9 +18,6 @@ import logo2 from "../../assets/logo2.png";
 
 const AuthPage = () => {
   const [loaderBtn, setLoaderBtn] = useState(false);
-
- 
-
   const [showForgotPassword, setForgotPasswordStatus] = useState(false);
   const navigate = useNavigate();
 

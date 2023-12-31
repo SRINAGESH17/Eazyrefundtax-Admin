@@ -4,6 +4,7 @@ import { useOutletContext } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.minimal.css";
+import { ThreeDots } from "react-loader-spinner";
 import { AdminAuthorURL } from "../../../baseUrl/BaseUrl";
 import { useAuth } from "../../../stores/AuthContext";
 
@@ -19,18 +20,15 @@ const AssigningCalls = () => {
     watch,
   } = useForm();
   const { getAccessToken } = useAuth();
+  const [showLoader, setShowLoader] = useState(false);
 
   const submitData = async (data) => {
+    setShowLoader(true);
     try {
       console.log(data, "data received");
       const url = AdminAuthorURL.callData.assignCallToEmployee;
 
       const token = await getAccessToken();
-
-      // const formData = new FormData();
-
-      // formData.append("callerMongoId", data.callerMongoId);
-      // formData.append("numberOfCalls", data.numberOfCalls);
 
       const options = {
         method: "POST",
@@ -54,10 +52,7 @@ const AssigningCalls = () => {
           draggable: true,
         });
 
-        reset({
-          callerMongoId: "",
-          numberOfCalls: "",
-        });
+        reset();
       } else {
         toast.error(responseObj.message, {
           position: toast.POSITION.TOP_RIGHT,
@@ -68,6 +63,7 @@ const AssigningCalls = () => {
     } catch (e) {
       console.log(e);
     }
+    setShowLoader(false);
 
     console.log(data);
   };
@@ -101,6 +97,9 @@ const AssigningCalls = () => {
                   required: "This field is required",
                 })}
                 className='border-none bg-transparent w-full h-full  p-[1rem] outline-none'>
+                <option selected disabled>
+                  Select Employee
+                </option>
                 {activeCallersData.map((data) => (
                   <option key={data._id} value={data._id}>
                     {data?.employeeId + "-" + data?.employeeName}
@@ -137,11 +136,26 @@ const AssigningCalls = () => {
             )}
           </div>
         </div>
-        <button
-          type='submit'
-          className='bg-[#C5090A] rounded-[1.2rem] py-[0.6rem] px-[1.9rem] text-white text-[0.6rem] self-end'>
-          Assign calls
-        </button>
+        {showLoader ? (
+          <div className='flex justify-center items-center self-end px-[1.9rem]'>
+            <ThreeDots
+              height='50'
+              width='50'
+              radius='9'
+              color='#C5090A'
+              ariaLabel='three-dots-loading'
+              wrapperStyle={{}}
+              wrapperClassName=''
+              visible={true}
+            />
+          </div>
+        ) : (
+          <button
+            type='submit'
+            className='bg-[#C5090A] rounded-[1.2rem] py-[0.6rem] px-[1.9rem] text-white text-[0.6rem] self-end'>
+            Assign calls
+          </button>
+        )}
       </form>
       <ToastContainer
         icon={true}
