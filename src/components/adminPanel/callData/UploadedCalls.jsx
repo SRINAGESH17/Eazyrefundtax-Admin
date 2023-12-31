@@ -20,6 +20,7 @@ const UploadedCalls = () => {
   const [searchKey, setSearchKey] = useState("");
 
   const [page, setPage] = useState(1);
+  const [totalList, setTotalList] = useState();
 
   const [status, setStatus] = useState("");
 
@@ -45,11 +46,15 @@ const UploadedCalls = () => {
         throw new Error(responseData.message)
       }
 
-      setCallsData(responseData.response.limitedData);
-       setCallsCount(responseData.response.totalData)
-      console.log(response);
+      if (response.ok) {
+        setCallsData(responseData.response.limitedData);
+        setCallsCount(responseData.response.totalData);
+        console.log(response);
 
-      console.log(responseData, "uploaded calls data received");
+        console.log(responseData, "uploaded calls data received");
+      } else {
+        setCallsData([]);
+      }
     } catch (e) {
       console.log(e);
     }
@@ -183,6 +188,7 @@ const UploadedCalls = () => {
 
 
 
+  console.log(callsData);
   return (
     <div className='flex flex-col gap-[1rem] w-full '>
       <div className='flex flex-col md:flex-row md:self-end gap-[1rem] lg:px-[2.5rem] xl:px-[4.5rem]'>

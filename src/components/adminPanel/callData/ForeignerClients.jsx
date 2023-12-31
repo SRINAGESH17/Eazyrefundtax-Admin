@@ -19,15 +19,20 @@ const ForeignerClients = () => {
  
   const selectRef = useRef(null);
 
+ 
+
+ 
+
   const [searchKey, setSearchKey] = useState("");
 
   const [page, setPage] = useState(1);
+  const [totalList, setTotalList] = useState();
 
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState("FOREIGNER");
 
   const { getAccessToken } = useAuth();
 
- 
+
 
   const columns = [
     {

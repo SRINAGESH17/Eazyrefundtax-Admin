@@ -329,7 +329,7 @@ const AdminCreateEmployee = () => {
                     onClick={() => setConfirmPassword(!showConfirmPassword)}
                     className='flex items-center pr-[1rem]'>
                     <Icon
-                      icon={showPassword ? "mdi:eye" : "mdi:eye-off"}
+                      icon={showConfirmPassword ? "mdi:eye" : "mdi:eye-off"}
                       className='text-[#E1D6D5] text-[1rem] lg:text-[1.5rem]'
                     />
                   </button>
@@ -547,7 +547,7 @@ const AdminCreateEmployee = () => {
                       type='file'
                       accept='image/*'
                       control={control}
-                      // name="identityImage" 
+                      // name="identityImage"
                       // {...register("identityImage", {
                       //   required:"This field is required"
                       // })}
@@ -596,17 +596,20 @@ const AdminCreateEmployee = () => {
                     </p>
                   </div>
                   {errors.identityImage && (
-                  <p className='text-red-600 font-bold text-sm'>
-                    {errors.identityImage.message}
-                  </p>
-                )}
+                    <p className='text-red-600 font-bold text-sm'>
+                      {errors.identityImage.message}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
           </div>
 
           <div className='flex flex-col gap-[1rem] md:flex-row md:justify-end'>
-            <button className='rounded-[1rem] bg-[#D1D4D7] border-none outline-none py-[1rem] w-full lg:w-[11rem] text-[0.8rem] text-[#000] font-[500]'>
+            <button
+              type='button'
+              onClick={() => reset()}
+              className='rounded-[1rem] bg-[#D1D4D7] border-none outline-none py-[1rem] w-full lg:w-[11rem] text-[0.8rem] text-[#000] font-[500]'>
               Reset
             </button>
             <button

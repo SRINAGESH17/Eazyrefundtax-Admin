@@ -17,6 +17,7 @@ const statuses = [
   "FOREIGNER",
   "INTERESTED",
   "MAILSENT",
+  "PENDING",
 ];
 
 const MigratingCalls = () => {
@@ -40,19 +41,20 @@ const MigratingCalls = () => {
       const token = await getAccessToken();
       const url = AdminAuthorURL.callData.migrateCalls;
 
-      const formData = new FormData();
+      // const formData = new FormData();
 
-      formData.append("fromCallerId", data.fromCallerId);
-      formData.append("toCallerId", data.toCallerId);
-      formData.append("callType", data.callType);
+      // formData.append("fromCallerId", data.fromCallerId);
+      // formData.append("toCallerId", data.toCallerId);
+      // formData.append("callType", data.callType);
 
-      formData.append("numberOfCalls", data.numberOfCalls);
+      // formData.append("numberOfCalls", data.numberOfCalls);
 
       const options = {
         method: "POST",
-        body: formData,
+        body: JSON.stringify(data),
         headers: {
           Authorization: `Bearer ${token}`,
+          "content-type": "application/json",
         },
       };
       const response = await fetch(url, options);
@@ -150,7 +152,7 @@ const MigratingCalls = () => {
                     className='border-none bg-transparent w-full h-full  p-[1rem] outline-none capitalize '>
                     {statuses.map((type) => (
                       <option className='' value={type}>
-                      {type.toLowerCase()}
+                        {type.toLowerCase()}
                       </option>
                     ))}
                   </select>
