@@ -27,15 +27,9 @@ const statuses = [
 
 const UploadedCalls = () => {
   const [callsData, setCallsData] = useState([]);
-  const [fromDate, setFromDate] = useState(null);
-
-  const [endDate, setEndDate] = useState(null);
-  const dateOptions = {
-    mode: "range",
-    format: "d-m-Y",
-  };
-
-  
+  const [callsCount, setCallsCount] = useState();
+ 
+  const selectRef = useRef(null);
 
   const [searchKey, setSearchKey] = useState("");
 
@@ -50,9 +44,7 @@ const UploadedCalls = () => {
     try {
       const token = await getAccessToken();
 
-      console.log(status, "s");
-
-      const url = AdminAuthorURL.callData.fetchCalls(searchKey, status, page);
+      const url = AdminAuthorURL.callData.fetchCalls(searchKey,status,page);
 
       const options = {
         method: "GET",
@@ -64,10 +56,13 @@ const UploadedCalls = () => {
       const response = await fetch(url, options);
 
       const responseData = await response.json();
+      if (!response.ok) {
+        throw new Error(responseData.message)
+      }
 
       if (response.ok) {
         setCallsData(responseData.response.limitedData);
-        setTotalList(responseData.response.totalData);
+        setCallsCount(responseData.response.totalData);
         console.log(response);
 
         console.log(responseData, "uploaded calls data received");
@@ -83,21 +78,12 @@ const UploadedCalls = () => {
     fetchCallData();
   }, [page, searchKey, status]);
 
-  const handleDateChange = (selectedDates) => {
-    console.log(selectedDates.length);
 
-    if (selectedDates.length === 1) {
-      setFromDate(selectedDates[0]);
-    }
-    if (selectedDates.length === 2) {
-      setEndDate(selectedDates[1]);
-    }
-  };
 
   const columns = [
     {
       name: "SL",
-      cell: (row, index) => index + 1,
+      cell: (row, index) => (page-1)*10+ index + 1,
     },
     {
       name: "Call ID",
@@ -113,7 +99,7 @@ const UploadedCalls = () => {
       name: "Caller Name",
       cell: (row) => (
         <div className='flex flex-row items-center gap-[1rem]'>
-          {/* <img src={row.image} className={"h-[3rem] w-[3rem] rounded-full"} /> */}
+       
           <p>{row.callerInfo.name}</p>
         </div>
       ),
@@ -124,7 +110,7 @@ const UploadedCalls = () => {
       cell: (row) => (
         <div className='flex flex-col gap-[0.2rem]'>
           <p>{row.callerInfo.email}</p>
-          <p>{row.phoneNumber}</p>
+          <p>{row.callerInfo.mobileNumber}</p>
         </div>
       ),
       width: "300px",
@@ -132,7 +118,7 @@ const UploadedCalls = () => {
     {
       name: "Call Comment",
       id: "callComment",
-      selector: (row) => row.callComment,
+      selector: (row) => row.comment,
       width: "130px",
     },
     {
@@ -214,80 +200,14 @@ const UploadedCalls = () => {
     },
   };
 
-  const sampleData = [
-    {
-      callId: "12345",
-      slotName: "Caller",
-      image:
-        "https://res.cloudinary.com/deh78ntmd/image/upload/v1698809102/Picture_z544ro.png",
-      name: "Mnaikanta",
-      email: "manikanta@000.com",
-      phoneNumber: "0000",
-      callComment: "Already",
-      status: "Voice Mail",
-    },
-    {
-      callId: "12345",
-      slotName: "Caller",
-      image:
-        "https://res.cloudinary.com/deh78ntmd/image/upload/v1698809102/Picture_z544ro.png",
-      name: "Mnaikanta",
-      email: "manikanta@000.com",
-      phoneNumber: "0000",
-      callComment: "Already",
-      status: "Voice Mail",
-    },
-    {
-      callId: "12345",
-      slotName: "Caller",
-      image:
-        "https://res.cloudinary.com/deh78ntmd/image/upload/v1698809102/Picture_z544ro.png",
-      name: "Mnaikanta",
-      email: "manikanta@000.com",
-      phoneNumber: "0000",
-      callComment: "Already",
-      status: "Voice Mail",
-    },
-    {
-      callId: "12345",
-      slotName: "Caller",
-      image:
-        "https://res.cloudinary.com/deh78ntmd/image/upload/v1698809102/Picture_z544ro.png",
-      name: "Mnaikanta",
-      email: "manikanta@000.com",
-      phoneNumber: "0000",
-      callComment: "Already",
-      status: "Voice Mail",
-    },
 
-    {
-      callId: "12345",
-      slotName: "Caller",
-      image:
-        "https://res.cloudinary.com/deh78ntmd/image/upload/v1698809102/Picture_z544ro.png",
-      name: "Mnaikanta",
-      email: "manikanta@000.com",
-      phoneNumber: "0000",
-      callComment: "Already",
-      status: "Voice Mail",
-    },
-  ];
 
   console.log(callsData);
   return (
     <div className='flex flex-col gap-[1rem] w-full '>
       <div className='flex flex-col md:flex-row md:self-end gap-[1rem] lg:px-[2.5rem] xl:px-[4.5rem]'>
         <div className='flex flex-row items-center gap-[1rem]'>
-          <button className='rounded-[4px] flex flex-row items-center gap-[0.5rem] border border-solid border-[#D1D4D7] h-[1.9rem] px-[0.8rem] text-[#8888A3]  '>
-            <Icon icon='lucide:filter' className='text-[1rem]' />
-            <span className='text-[0.6rem]'>Filter</span>
-          </button>
-          <Flatpickr
-            placeholder='Select Date'
-            className='form-control w-full outline-none border border-solid border-[#D1D4D7] placeholder:text-[#8888A3]  px-[0.8rem] text-[0.6rem] h-[1.9rem] '
-            options={dateOptions}
-            onChange={(e) => handleDateChange(e)}
-          />
+         
 
           <div className='rounded-[4px] flex flex-row items-center border border-solid border-[#D1D4D7] h-[1.9rem] pr-[0.8rem]'>
             <select
@@ -324,9 +244,17 @@ const UploadedCalls = () => {
         <DataTable
           columns={columns}
           data={callsData}
+          
           customStyles={customStyles}
           pagination
-          paginationComponent={CustomPagination}
+          paginationComponent={() =>
+            CustomPagination({
+              rowsPerPage: 10,
+              rowCount: callsCount,
+              currentPage: page,
+              onChangePage: setPage,
+            })
+          }
           selectableRows
           selectableRowsComponent={CustomCheckbox}
         />
