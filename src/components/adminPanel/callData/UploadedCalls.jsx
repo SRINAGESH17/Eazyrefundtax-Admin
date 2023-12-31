@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/themes/material_red.css";
 import { Icon } from "@iconify/react";
@@ -8,8 +8,11 @@ import DataTable from "react-data-table-component";
 
 import CustomPagination from "../../../helpers/CustomPagination";
 import CustomCheckbox from "../../../helpers/CustomCheckbox";
+import { AdminAuthorURL } from "../../../baseUrl/BaseUrl";
+import { useAuth } from "../../../stores/AuthContext";
 
 const UploadedCalls = () => {
+  const [callsData, setCallsData] = useState([]);
   const [fromDate, setFromDate] = useState(null);
 
   const [endDate, setEndDate] = useState(null);
@@ -19,6 +22,45 @@ const UploadedCalls = () => {
   };
 
   const selectRef = useRef(null);
+
+  const [searchKey, setSearchKey] = useState("");
+
+  const [page, setPage] = useState(1);
+
+  const [status, setStatus] = useState("");
+
+  const { getAccessToken } = useAuth();
+
+  const fetchCallData = async () => {
+    try {
+      const token = await getAccessToken();
+
+      const url = AdminAuthorURL.callData.fetchCalls(searchKey, page, status);
+
+      const options = {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const response = await fetch(url, options);
+
+      const responseData = await response.json();
+
+      setCallsData(responseData.response);
+
+      console.log(response);
+
+      console.log(responseData, "uploaded calls data received");
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  useEffect(() => {
+    fetchCallData();
+  }, [page, searchKey, status]);
 
   const handleDateChange = (selectedDates) => {
     console.log(selectedDates.length);
@@ -220,25 +262,11 @@ const UploadedCalls = () => {
           </button>
           <Flatpickr
             placeholder='Select Date'
-            className='form-control w-full outline-none border border-solid border-[#D1D4D7] text-[#8888A3]  px-[0.8rem] text-[0.6rem] h-[1.9rem] '
+            className='form-control w-full outline-none border border-solid border-[#D1D4D7] placeholder:text-[#8888A3]  px-[0.8rem] text-[0.6rem] h-[1.9rem] '
             options={dateOptions}
             onChange={(e) => handleDateChange(e)}
           />
 
-          {/* <Flatpickr
-            className='form-control flex bg-white placeholder-[#8888A3] placeholder:text-[0.6rem] placeholder:text-[#8888A3] placeholder:font-[500] w-full h-[1.9rem] px-[0.8rem] outline-none '
-            style={{
-              border: "1px solid #DFDFDF",
-              borderRadius: "8px",
-            }}
-            placeholder='Select Date'
-            options={dateOptions}
-            onChange={(e) => handleDateChange(e)}
-          /> */}
-          {/* <button className='rounded-[4px] flex flex-row items-center gap-[0.5rem] border border-solid border-[#D1D4D7] h-[1.9rem] px-[0.8rem] text-[#8888A3]  '>
-            <Icon icon='solar:calendar-line-duotone' className='text-[1rem]' />
-            <span className='text-[0.6rem]'>Date</span>
-          </button> */}
           <div className='rounded-[4px] flex flex-row items-center border border-solid border-[#D1D4D7] h-[1.9rem] pr-[0.8rem]'>
             <select
               ref={selectRef}
@@ -251,12 +279,16 @@ const UploadedCalls = () => {
 
         <div className='w-full flex flex-row h-[2.5rem] md:w-[20rem]'>
           <input
+            onChange={(e) => setSearchKey(e.target.value)}
             placeholder='Search by Name or Phone or Email'
             type='text'
             className='flex-1 h-full  outline-none border-r-0 border-[0.5px] border-solid border-[#D1D4D7] rounded-s-[0.5rem] px-[0.5rem] text-[0.7rem] font-[500] text-[#8888A3] placeholder-[#8888A3]'
           />
 
-          <button className='bg-[#C5090A] rounded-e-[0.5rem] px-[1.2rem] text-white text-[0.7rem] font-[500]'>
+          <button
+            onClick={() => fetchCallData()}
+            type='button'
+            className='bg-[#C5090A] rounded-e-[0.5rem] px-[1.2rem] text-white text-[0.7rem] font-[500]'>
             Search
           </button>
         </div>

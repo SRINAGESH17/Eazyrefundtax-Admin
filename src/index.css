@@ -13,23 +13,56 @@
   
   
 #callData::-webkit-scrollbar {
-  height:9px;
+  height:6px;
+ 
  
 }
 
 #callData::-webkit-scrollbar-track {
     /* Change the background color */
     background-color: #f1f1f1;
+
   }
   
   /* Select the scrollbar thumb */
 #callData::-webkit-scrollbar-thumb {
     /* Change the background color */
     background-color: #888;
-    height:4px;
+    width:100px;
+   
     border-radius: 20px;
    
-  
-   
-   
+}
+
+.PhoneInputInput {
+  /* The phone number input stretches to fill all empty space */
+  flex: 1;
+  /* The phone number input should shrink to make room for the extension input */
+  min-width: 0;
+  outline: none;
+  background: transparent;
+ 
+  font-family: "Amulya";
+  font-size:"12px";
+  font-weight: 500;
+
+}
+.PhoneInputInput {
+  font-size:"12px";
+
+  label {
+    font-size:"12px";
+  }
+
+ 
+}
+
+
+
+#container {
+  height: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  width: 100%;
+
 }

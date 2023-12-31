@@ -1,43 +1,56 @@
 import { useState, useRef, useEffect } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { Icon } from "@iconify/react";
+import { useForm } from "react-hook-form";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.minimal.css";
 import { useAuth } from "../../../stores/AuthContext";
 import { AdminAuthorURL } from "../../../baseUrl/BaseUrl";
+import employeeProfile from "../../../assets/employeeProfile.png";
 
 const PersonalDataInfo = () => {
   const [employeeDetails] = useOutletContext();
 
   const { id } = useParams();
 
-  const { designation, email, identity, mobileNumber, name, photo } =
-    employeeDetails;
+  console.log(employeeDetails);
 
-  console.log(employeeDetails,"employee dertails");
+  const {
+    designation,
+    email,
+    identity,
+    mobileNumber,
+    name,
+    photo,
+    state,
+    zipCode,
+  } = employeeDetails;
 
-  // const identityDetails = {
-  //   identityPhoto: identity.url,
-  //   identityType: identity._IDType,
-  // };
-
+  console.log(employeeDetails, "employee details");
   const imageRef = useRef(null);
+  const identityFileRef = useRef(null);
 
   const [editProfile, setEditProfile] = useState(false);
 
-  const [userDetails, setUserDetails] = useState({
-    name: name,
-    role: designation,
-    phoneNumber: mobileNumber,
-    email: email,
-    idType: identity?._IDType,
-    idNumber: identity?._IDNumber,
-    employeePhoto: photo,
-    idUrl: identity?.__IDURL,
-  });
+  const [userDetails, setUserDetails] = useState();
 
-  
-
-  const [image, selectImage] = useState();
+  useEffect(() => {
+    if (employeeDetails) {
+      setUserDetails({
+        name: employeeDetails.name,
+        role: employeeDetails.designation,
+        email: employeeDetails.email,
+        mobileNumber: employeeDetails.mobileNumber,
+        idType: employeeDetails.identity?._IDType,
+        idUrl: employeeDetails.identity?.url,
+        idNumber: employeeDetails.identity?._IDNumber,
+        photo: employeeDetails.photo,
+        state: employeeDetails.state,
+        zipCode: employeeDetails.zipCode,
+      });
+    }
+  }, [employeeDetails]);
 
   console.log(userDetails, "input user details");
 
@@ -52,28 +65,32 @@ const PersonalDataInfo = () => {
       const {
         name,
         role,
-        phoneNumber,
+        mobileNumber,
         email,
         idType,
         idNumber,
-        employeePhoto,
+        photo,
         idUrl,
+        state,
+        zipCode,
       } = userDetails;
 
       const url = AdminAuthorURL.employee.updateEmployee(id);
       const formData = new FormData();
 
       formData.append("name", name);
-      formData.append("mobileNumber", phoneNumber);
+      formData.append("mobileNumber", mobileNumber);
       formData.append("email", email);
-      formData.append("photo", employeePhoto);
+      formData.append("photo", photo);
+      formData.append("state", state);
+      formData.append("zipCode", zipCode);
       formData.append("_IDURL", idUrl);
       formData.append("designation", role);
 
       formData.append("identityType", idType);
       formData.append("identityNumber", idNumber);
-      // formData.append("state",data.state)
-      // formData.append("zipCode",data.zipCode)
+
+      console.log(formData, "form-data");
 
       const options = {
         method: "PUT",
@@ -85,10 +102,52 @@ const PersonalDataInfo = () => {
 
       const response = await fetch(url, options);
 
+      const responseObj = await response.json();
+
+      if (response.ok) {
+        toast.success(responseObj.message, {
+          position: toast.POSITION.TOP_RIGHT,
+          theme: "colored",
+          draggable: true,
+          autoClose:5000
+        });
+      } else {
+        toast.error(responseObj.message, {
+          position: toast.POSITION.TOP_RIGHT,
+          theme:"colored",
+          draggable:true,
+          autoClose:5000
+        });
+      }
+
       console.log(response);
     } catch (e) {
       console.log(e);
     }
+  };
+
+  const loadImage = (image) => {
+    // Check if the provided value is a URL or a File
+    if (typeof image === "string") {
+      // If it's a URL, set the image source directly
+      return image;
+    } else if (image instanceof File) {
+      // If it's a File, create an object URL and set it as the image source
+      const objectUrl = URL.createObjectURL(image);
+      return objectUrl;
+
+      // Clean up the object URL when the component unmounts
+      return () => URL.revokeObjectURL(objectUrl);
+    }
+  };
+
+  const contextClass = {
+    success: "bg-[#00C041]",
+    error: "bg-red-600",
+    info: "bg-gray-600",
+    warning: "bg-orange-400",
+    default: "bg-indigo-600",
+    dark: "bg-white-600 font-gray-300",
   };
 
   return (
@@ -99,11 +158,13 @@ const PersonalDataInfo = () => {
             ref={imageRef}
             type='file'
             accept='image/*'
-            value={userDetails.photo}
             style={{ display: "none" }}
             onChange={({ target: { files } }) => {
               if (files[0]) {
-                selectImage(files[0]);
+                setUserDetails({
+                  ...userDetails,
+                  photo: files[0],
+                });
               }
             }}
           />
@@ -118,8 +179,11 @@ const PersonalDataInfo = () => {
             />
           </button>
           <img
-            src={(image && URL.createObjectURL(image)) || photo}
-            className='h-[9rem]   w-full rounded-[0.5rem] '
+            src={
+              (userDetails?.photo && loadImage(userDetails?.photo)) ||
+              employeeProfile
+            }
+            className='h-[9rem]   w-auto rounded-[0.5rem] '
           />
           <p className='text-[#8888A3] text-[0.8rem] lg:text-[1rem] font-[700] self-center'>
             {name}
@@ -128,12 +192,38 @@ const PersonalDataInfo = () => {
 
         <div className='flex flex-col md:w-[11rem] gap-[1rem] relative'>
           <button
+            type='button'
+            onClick={() => identityFileRef.current.click()}
             style={{ boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.10)" }}
             className='h-[2rem] w-[2rem] rounded-[1.2rem] bg-[#FFF]   p-[7.23px] absolute top-[-5%] right-[-5%] flex justify-center items-center'>
-            <Icon icon='mdi:eye' className='text-[1.1rem] text-[#000000]' />
+            <Icon
+              icon='material-symbols:edit'
+              className='text-[1.1rem] text-[#000000]'
+            />
           </button>
+
+          <input
+            ref={identityFileRef}
+            type='file'
+            accept='image/*'
+            style={{ display: "none" }}
+            onChange={({ target: { files } }) => {
+              if (files[0]) {
+                setUserDetails({
+                  ...userDetails,
+                  idUrl: files[0],
+                });
+              }
+            }}
+          />
+
           <img
-            src={identity?.url}
+            // src={identity?.url}
+
+            src={
+              (userDetails?.idUrl && loadImage(userDetails?.idUrl)) ||
+              employeeProfile
+            }
             className='h-[9rem] w-full  rounded-[0.5rem]'
           />
           <p className='text-[#8888A3] text-[0.8rem] lg:text-[1rem] font-[700] self-center'>
@@ -211,9 +301,12 @@ const PersonalDataInfo = () => {
               {editProfile ? (
                 <input
                   type='text'
-                  value={userDetails.phoneNumber}
+                  value={userDetails.mobileNumber}
                   onChange={(e) =>
-                    setUserDetails({ ...userDetails, mobileNumber: e.target.value })
+                    setUserDetails({
+                      ...userDetails,
+                      mobileNumber: e.target.value,
+                    })
                   }
                   className='border-none bg-transparent outline-none text-[0.5rem] lg:text-[0.7rem]'
                 />
@@ -249,24 +342,47 @@ const PersonalDataInfo = () => {
               style={{ background: "rgba(209, 212, 215, 0.2)" }}
               className='py-[0.5rem] px-[1rem] lg:px-[1.5rem] w-full rounded-[0.5rem] flex flex-col gap-[0.1rem]'>
               <label className='text-[#D1D4D7] text-[0.5rem] lg:text-[0.7rem] font-[500]'>
-                Address
+                State
               </label>
 
               {editProfile ? (
                 <input
                   type='text'
-                  value={userDetails.name}
+                  value={userDetails.state}
                   onChange={(e) =>
-                    setUserDetails({ ...userDetails, name: e.target.value })
+                    setUserDetails({ ...userDetails, state: e.target.value })
                   }
                   className='border-none bg-transparent outline-none text-[0.5rem] lg:text-[0.7rem]'
                 />
               ) : (
                 <p className='text-[0.5rem] lg:text-[0.7rem] text-[#1A1616] font-[600]'>
-                  {/* {selectedUser.name} */}
+                  {state}
                 </p>
               )}
             </div>
+            <div
+              style={{ background: "rgba(209, 212, 215, 0.2)" }}
+              className='py-[0.5rem] px-[1rem] lg:px-[1.5rem] w-full rounded-[0.5rem] flex flex-col gap-[0.1rem]'>
+              <label className='text-[#D1D4D7] text-[0.5rem] lg:text-[0.7rem] font-[500]'>
+                Zip Code
+              </label>
+
+              {editProfile ? (
+                <input
+                  type='text'
+                  value={userDetails.zipCode}
+                  onChange={(e) =>
+                    setUserDetails({ ...userDetails, zipCode: e.target.value })
+                  }
+                  className='border-none bg-transparent outline-none text-[0.5rem] lg:text-[0.7rem]'
+                />
+              ) : (
+                <p className='text-[0.5rem] lg:text-[0.7rem] text-[#1A1616] font-[600]'>
+                  {zipCode}
+                </p>
+              )}
+            </div>
+
             <div
               style={{ background: "rgba(209, 212, 215, 0.2)" }}
               className='py-[0.5rem] px-[1rem] lg:px-[1.5rem] w-full rounded-[0.5rem] flex flex-col gap-[0.1rem]'>
@@ -322,6 +438,13 @@ const PersonalDataInfo = () => {
           )}
         </form>
       </div>
+      <ToastContainer
+        icon={true}
+        toastClassName={({ type }) =>
+          contextClass[type || "default"] +
+          " relative flex p-2 h-[4rem] text-white  text-[1rem] font-[500]  rounded-tr justify-between overflow-hidden cursor-pointer"
+        }
+      />
     </div>
   );
 };

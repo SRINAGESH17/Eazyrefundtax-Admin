@@ -54,7 +54,7 @@ export default function CustomPagination({
   return (
     <div className='flex flex-col lg:flex-row justify-between lg:items-center py-[1.6rem] px-[1rem]'>
       <p className='text-[#8888A3] text-[0.8rem] font-[500]'>
-        {currentPage} - {lastIndex} of {numPages} items
+        {firstIndex} - {lastIndex} of {rowCount} items
       </p>
       <div className='flex flex-row justify-between self-start items-center gap-[1rem]  px-2 py-1 rounded mt-3 bg-white'>
         <button

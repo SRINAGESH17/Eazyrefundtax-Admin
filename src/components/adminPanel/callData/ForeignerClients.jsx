@@ -226,25 +226,10 @@ const ForeignerClients = () => {
 
           <Flatpickr
             placeholder='Select Date'
-            className='form-control w-full outline-none border border-solid border-[#D1D4D7] text-[#8888A3]  px-[0.8rem] text-[0.6rem] h-[1.9rem] '
+            className='form-control w-full outline-none border border-solid border-[#D1D4D7] placeholder:text-[#8888A3]  px-[0.8rem] text-[0.6rem] h-[1.9rem] '
             options={dateOptions}
             onChange={(e) => handleDateChange(e)}
           />
-
-          {/* <Flatpickr
-            className='form-control flex bg-white placeholder-[#8888A3] placeholder:text-[0.6rem] placeholder:text-[#8888A3] placeholder:font-[500] w-full h-[1.9rem] px-[0.8rem] outline-none '
-            style={{
-              border: "1px solid #DFDFDF",
-              borderRadius: "8px",
-            }}
-            placeholder='Select Date'
-            options={dateOptions}
-            onChange={(e) => handleDateChange(e)}
-          /> */}
-          {/* <button className='rounded-[4px] flex flex-row items-center gap-[0.5rem] border border-solid border-[#D1D4D7] h-[1.9rem] px-[0.8rem] text-[#8888A3]  '>
-            <Icon icon='solar:calendar-line-duotone' className='text-[1rem]' />
-            <span className='text-[0.6rem]'>Date</span>
-          </button> */}
 
           <div className='rounded-[4px] flex flex-row items-center border border-solid border-[#D1D4D7] h-[1.9rem] pr-[0.8rem]'>
             <select

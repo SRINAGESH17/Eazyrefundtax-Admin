@@ -5,6 +5,7 @@ import { Link, useLocation, NavLink } from "react-router-dom";
 import { useAuth } from "../../stores/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import eazyRefund from "../../assets/eazyRefund.svg";
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const path = useLocation().pathname.split("/")[2];
@@ -34,15 +35,14 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
   return (
     <div
-
-    style={{boxShadow:"0px 0px 10px 0px rgba(0, 0, 0, 0.20)"}}
-      className={`bg-white border border-r border-[#DFDFDF] text-[#1A1616]  font-[400]  font-lato relative  overflow-y-auto h-screen   ${
+      style={{ boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.20)" }}
+      className={`bg-white border border-r border-[#DFDFDF] text-[#1A1616]  font-[400]  font-lato relative  h-screen overflow-y-auto  ${
         sidebarCollapse &&
         "w-[40%]  xl:w-[35%] transition ease-in-out delay-250"
       }   lg:top-0 lg:flex lg:flex-col lg:justify-between `}>
       {/* <button
-        // onClick={() => setSidebarCollapse(!sidebarCollapse)}
-        className='overflow-visible absolute top-[1.9rem] right-[-1rem] outline-none  bg-[#C5090A] rounded-[1.2rem] text-[1rem] text-[#FFFFFF] hidden lg:flex justify-center items-center p-[0.5rem]'>
+        onClick={() => setSidebarCollapse(!sidebarCollapse)}
+        className='overflow-visible absolute top-[1.9rem] right-[-1rem] z-40 outline-none  bg-[#C5090A] rounded-[1.2rem] text-[1rem] text-[#FFFFFF] hidden lg:flex justify-center items-center p-[0.5rem]'>
         <Icon
           icon={
             sidebarCollapse
@@ -51,13 +51,13 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
           }
         />
       </button> */}
-      <div className=''>
-        <div className='flex flex-col  justify-center items-center  top-0 py-[2rem] bg-white z-10   '>
+      <div className='flex flex-col '>
+        <div className='flex flex-col  justify-center items-center  top-0 sticky py-[2rem] bg-white z-10   '>
           <div
             className='p-[0.2rem] absolute top-2 right-2 lg:hidden'
             style={{
               background:
-                "linear-gradient(91.06deg, #BE0A23 0.01%, #E99F00 100.04%)",
+                "#C5090A",
               boxShadow: "4px 4px 140px rgba(0, 0, 0, 0.15)",
               borderRadius: "6px",
             }}
@@ -68,13 +68,15 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
             />
           </div>
 
-          <Link to='/' className='w-full flex flex-col items-center '>
-            <img src={logo} alt='' className='w-[6rem] h-auto' />
+          <Link
+            to='/'
+            className='w-full flex flex-col items-center box-content '>
+            <img src={eazyRefund} alt='' className='w-[7rem] h-[6.25]' />
           </Link>
         </div>
 
-        <div className='flex flex-col  gap-[3rem] px-[1.5rem] py-[2.5rem]  '>
-          <div className='flex flex-col gap-[2.5rem]'>
+        <div className='flex flex-col h-full w-full justify-between overflow-y-auto   gap-[3rem] px-[1.5rem] py-[2.5rem]  '>
+          <div className='flex flex-col gap-[1.5rem]'>
             <NavLink to='' end>
               {({ isActive, isPending }) => (
                 <div
@@ -82,8 +84,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                   className={`flex gap-[0.9rem] items-center  rounded-md  
                 ${
                   isActive &&
-                  "text-[#BE0A23] bg-[#C5090A33] p-[0.5rem] rounded-[0.5rem] border-l-[4px] border-solid border-[#C5090A] font-[700]"
-                } cursor-pointer`}>
+                  "text-[#BE0A23] bg-[#C5090A33]  rounded-[0.5rem] border-l-[4px] border-solid border-[#C5090A] font-[700]"
+                } p-[0.5rem] cursor-pointer`}>
                   <div>
                     <Icon
                       icon='mdi:view-dashboard'
@@ -104,8 +106,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                   className={`flex gap-[0.9rem] items-center  rounded-md  
                 ${
                   isActive &&
-                  "text-[#BE0A23] bg-[#C5090A33] p-[0.5rem] rounded-[0.5rem] border-l-[4px] border-solid border-[#C5090A]  font-[700] "
-                } cursor-pointer`}>
+                  "text-[#BE0A23] bg-[#C5090A33]  rounded-[0.5rem] border-l-[4px] border-solid border-[#C5090A]  font-[700] "
+                } p-[0.5rem] cursor-pointer`}>
                   <Icon
                     icon='clarity:employee-solid'
                     className='text-[1.3rem] '
@@ -125,7 +127,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 ${
                   isActive &&
                   "text-[#BE0A23] bg-[#C5090A33] p-[0.5rem] rounded-[0.5rem] border-l-[4px] border-solid border-[#C5090A]  font-[700] "
-                } cursor-pointer`}>
+                } p-[0.5rem] cursor-pointer`}>
                   <Icon icon='ion:list-sharp' className='text-[1.3rem]' />
                   {!sidebarCollapse && (
                     <h4 className='text-[0.9rem]'>Sub Admin</h4>
@@ -141,7 +143,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                   ${
                     isActive &&
                     "text-[#BE0A23] bg-[#C5090A33] p-[0.5rem] rounded-[0.5rem] border-l-[4px] border-solid border-[#C5090A]  font-[700] "
-                  } cursor-pointer`}>
+                  } p-[0.5rem] cursor-pointer`}>
                   <Icon
                     icon='material-symbols:call-log'
                     className='text-[1.3rem]'
@@ -160,7 +162,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                   ${
                     isActive &&
                     "text-[#BE0A23] bg-[#C5090A33] p-[0.5rem] rounded-[0.5rem] border-l-[4px] border-solid border-[#C5090A]  font-[700] "
-                  } cursor-pointer`}>
+                  } p-[0.5rem] cursor-pointer`}>
                   <Icon
                     icon='healthicons:i-documents-accepted'
                     className='text-[1.3rem]'
@@ -179,7 +181,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                   ${
                     isActive &&
                     "text-[#BE0A23] bg-[#C5090A33] p-[0.5rem] rounded-[0.5rem] border-l-[4px] border-solid border-[#C5090A]  font-[700] "
-                  } cursor-pointer`}>
+                  } p-[0.5rem] cursor-pointer`}>
                   <Icon icon='ion:list-sharp' className='text-[1.3rem]' />
                   {!sidebarCollapse && (
                     <h4 className='text-[0.9rem]'>Tax type</h4>
@@ -196,7 +198,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                   ${
                     isActive &&
                     "text-[#BE0A23] bg-[#C5090A33] p-[0.5rem] rounded-[0.5rem] border-l-[4px] border-solid border-[#C5090A]  font-[700] "
-                  } cursor-pointer`}>
+                  } p-[0.5rem] cursor-pointer`}>
                   <Icon icon='mdi:invoice-minus' className='text-[1.3rem]' />
                   {!sidebarCollapse && (
                     <h4 className='text-[0.9rem]'>Invoice</h4>
@@ -213,7 +215,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                   ${
                     isActive &&
                     "text-[#BE0A23] bg-[#C5090A33] p-[0.5rem] rounded-[0.5rem] border-l-[4px] border-solid border-[#C5090A]  font-[700] "
-                  } cursor-pointer`}>
+                  } p-[0.5rem] cursor-pointer`}>
                   <Icon icon='fa-solid:user-edit' className='text-[1.3rem]' />
                   {!sidebarCollapse && (
                     <h4 className='text-[0.9rem]'>Registered Clients</h4>
@@ -230,7 +232,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                   ${
                     isActive &&
                     "text-[#BE0A23] bg-[#C5090A33] p-[0.5rem] rounded-[0.5rem] border-l-[4px] border-solid border-[#C5090A]  font-[700] "
-                  } cursor-pointer`}>
+                  } p-[0.5rem] cursor-pointer`}>
                   <Icon icon='ic:baseline-textsms' className='text-[1.3rem]' />
                   {!sidebarCollapse && <h4 className='text-[0.9rem]'>SMS</h4>}
                 </div>
@@ -245,7 +247,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                   ${
                     isActive &&
                     "text-[#BE0A23] bg-[#C5090A33] p-[0.5rem] rounded-[0.5rem] border-l-[4px] border-solid border-[#C5090A]  font-[700] "
-                  } cursor-pointer`}>
+                  } p-[0.5rem] cursor-pointer`}>
                   <Icon
                     icon='fluent:share-24-filled'
                     className='text-[1.3rem]'
@@ -257,7 +259,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
               )}
             </NavLink>
           </div>
-          <hr className='border-[#DFDFDF]' />
+
           <div className='flex flex-col gap-[2.5rem]'>
             <button
               className='flex gap-[0.9rem] items-center  justify-start    rounded-lg w-full hover:text-[#BE0A23] focus:text-[#BE0A23]'
@@ -272,7 +274,6 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
               /> */}
             </button>
           </div>
-          <hr className='border-[#DFDFDF]' />
         </div>
       </div>
     </div>

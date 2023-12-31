@@ -37,6 +37,7 @@ import InvoiceList from "../components/adminPanel/invoiceList/InvoiceList";
 import RegisteredClients from "../components/adminPanel/registeredClients/RegisteredClients";
 import Sms from "../components/adminPanel/sms/Sms";
 import ReferalList from "../components/adminPanel/ReferalList";
+import ForgotPassword from "../components/adminPanel/ForgotPassword";
 
 const PrivateRoute = ({ component: Component }) => {
   const { currentUser, userRole } = useAuth();
@@ -254,6 +255,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<Loader />}>
             <PrivateRoute component={ReferalList} />
+          </Suspense>
+        ),
+      },
+      {
+        path: "forgot-password",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <PrivateRoute component={ForgotPassword} />
           </Suspense>
         ),
       },

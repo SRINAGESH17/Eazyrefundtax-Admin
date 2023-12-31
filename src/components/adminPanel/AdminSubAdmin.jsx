@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import DataTable from "react-data-table-component";
 import { Icon } from "@iconify/react";
 
@@ -11,6 +11,11 @@ import "react-phone-number-input/style.css";
 import employeeProfile from "../../assets/employeeProfile.png";
 import CustomPagination from "../../helpers/CustomPagination";
 import PhoneInput from "react-phone-number-input";
+import { useAuth } from "../../stores/AuthContext";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import { AdminAuthorURL } from "../../baseUrl/BaseUrl";
 
 const customStyles = {
   headRow: {
@@ -73,38 +78,136 @@ const customStyles = {
 const AdminSubAdmin = () => {
   const [showPassword, setShowPassword] = useState(false);
 
+  const [subAdminData, setSubAdminData] = useState([]);
+
+  const [adminDetails, setAdminDetails] = useState({});
+  const [adminView, setAdminView] = useState(false);
+
+  const [searchKey, setSearchKey] = useState("");
+
+  const [page, setPage] = useState(1);
+  const [totalList, setTotalList] = useState();
+
+  const [values, setValues] = useState({
+    name: "",
+    email: "",
+    mobileNumber: "",
+    photo: "",
+    state: "",
+    zipCode: "",
+    password: "",
+  });
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     control,
     reset,
-  } = useForm();
+    watch,
+  } = useForm({ defaultValues: values });
 
   const [image, selectImage] = useState();
 
-  const imageRef = useRef(null);
+  const [imageError, setImageError] = useState(false);
+  const [subadminId, setSubAdminId] = useState();
+  const [showConfirmPassword, setConfirmPassword] = useState(false);
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
+  const [isPasswordMatch, setPasswordStatus] = useState(true);
+
+  const imageRef = useRef(null);
+  const [isImageSelected, setImageSelectionStatus] = useState(false);
+
+  const [mobileNumber, setMobileNumber] = useState();
+
+  const [permissions, setPermissions] = useState({
+    employeeData: false,
+    callData: false,
+    document: false,
+    taxType: false,
+    invoice: false,
+    clients: false,
+    sms: false,
+  });
+
+  const { getAccessToken } = useAuth();
+
+  const deleteSubAdmin = async (id) => {
+    try {
+      const token = await getAccessToken();
+
+      console.log(id, "delete id received");
+
+      const url = AdminAuthorURL.subAdmin.deleteSubAdmin(id);
+
+      const options = {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const response = await fetch(url, options);
+
+      const responseObj = await response.json();
+
+      console.log(response, "delete successfully");
+      console.log(responseObj);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
+  const fetchSubAdminById = async (id) => {
+    try {
+      const token = await getAccessToken();
 
-    console.log(e.dataTransfer.files);
+      const url = AdminAuthorURL.subAdmin.fetchSubAdminById(id);
 
-    selectImage(e.dataTransfer.files[0]);
+      const options = {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const response = await fetch(url, options);
+
+      const responseData = await response.json();
+
+      if (response.ok) {
+        console.log(responseData, "specific response ");
+        setAdminDetails(responseData.response);
+
+        reset({
+          name: responseData.response.name,
+          email: responseData.response.email,
+          mobileNumber: responseData.response.mobileNumber,
+          photo: responseData.response.photo,
+          state: responseData.response.state,
+          zipCode: responseData.response.zipCode,
+          permissions: responseData.response.permissions,
+          password: responseData.response.password,
+        });
+
+        setPermissions(responseData.response.permissions);
+        selectImage(responseData.response.photo);
+      } else {
+        setAdminDetails({});
+      }
+    } catch (e) {
+      console.log(e);
+    }
   };
   const columns = [
     {
       name: "SL",
-      cell: (row, index) => index + 1,
+      cell: (row, index) => (page - 1) * 10 + index + 1,
     },
     {
       name: "Sub-admin ID",
-      id: "adminId",
-      selector: (row) => row.adminId,
+      id: "id",
+      selector: (row) => row.id,
 
       width: "120px",
     },
@@ -112,7 +215,7 @@ const AdminSubAdmin = () => {
       name: "Sub-Admin Name",
       cell: (row) => (
         <div className='flex flex-row items-center gap-[1rem]'>
-          <img src={row.image} className={"h-[3rem] w-[3rem] rounded-full"} />
+          <img src={row.photo} className={"h-[3rem] w-[3rem] rounded-full"} />
           <p>{row.name}</p>
         </div>
       ),
@@ -123,20 +226,21 @@ const AdminSubAdmin = () => {
       cell: (row) => (
         <div className='flex flex-col gap-[0.2rem]'>
           <p>{row.email}</p>
-          <p>{row.phoneNumber}</p>
+          <p>{row.mobileNumber}</p>
         </div>
       ),
       width: "300px",
     },
     {
       name: "Address",
-      id: "address",
-      selector: (row) => row.address,
+      id: "state",
+      selector: (row) => row.state,
+      width: "200px",
     },
     {
       name: "Pin code",
-      id: "pincode",
-      selector: (row) => row.pincode,
+      id: "zipCode",
+      selector: (row) => row.zipCode,
     },
 
     {
@@ -171,16 +275,22 @@ const AdminSubAdmin = () => {
       cell: (row) => (
         <div className={`flex flex-row items-center gap-[1rem]`}>
           <button
+            onClick={() => {
+              fetchSubAdminById(row._id);
+              setAdminView(true);
+
+              setSubAdminId(row._id);
+            }}
             style={{ border: "0.727px solid #D9D9D9" }}
             className='bg-[#FFF] rounded-[7.23px] flex justify-center items text-[1.1rem] text-[#000000] p-[0.4rem]'>
-            <Icon icon='mdi:eye' />
+            <Icon icon='material-symbols:edit' />
           </button>
 
           <button
-            // onClick={() => navigate(`/library/edit-resourse/${row._id}`)}
+            onClick={() => deleteSubAdmin(row._id)}
             style={{ border: "0.727px solid #D9D9D9" }}
             className='bg-[#FFF] rounded-[7.23px] flex justify-center items text-[1.1rem] text-[#000000] p-[0.4rem]'>
-            <Icon icon='ic:baseline-edit' />
+            <Icon icon='material-symbols:delete-rounded' />
           </button>
         </div>
       ),
@@ -230,10 +340,274 @@ const AdminSubAdmin = () => {
     },
   ];
 
-  console.log(image);
+  const updateData = async (data) => {
+    console.log("updata data called", data, image);
+    try {
+      setPasswordStatus(true);
+      const token = await getAccessToken();
+
+      const url = AdminAuthorURL.subAdmin.updateSubAdmin(subadminId);
+
+      console.log(mobileNumber);
+
+      const formData = new FormData();
+
+      formData.append("name", data.name);
+      formData.append("email", data.email);
+      formData.append("zipCode", data.zipCode);
+      formData.append("password", data.password);
+      formData.append("state", data.state);
+      formData.append("mobileNumber", data.mobileNumber);
+      formData.append("photo", image);
+      formData.append("permissions", JSON.stringify(permissions));
+
+      console.log();
+
+      const options = {
+        method: "PUT",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const response = await fetch(url, options);
+
+      const responseObj = await response.json();
+
+      if (response.ok) {
+        console.log(response);
+
+        console.log(responseObj);
+        toast.success(responseObj.message, {
+          position: toast.POSITION.TOP_RIGHT,
+          theme: "colored",
+          draggable: true,
+          autoClose:5000
+        });
+
+        reset({
+          name: "",
+          email: "",
+          mobileNumber: "",
+          password: "",
+          confirmPassword: "",
+          photo: "",
+          designation: "",
+          role: "",
+          identifyType: "",
+          identityNumber: "",
+          state: "",
+          zipCode: "",
+        });
+        selectImage();
+        setMobileNumber();
+        selectImage();
+
+        setPermissions({
+          employeeData: false,
+          callData: false,
+          document: false,
+          taxType: false,
+          invoice: false,
+          clients: false,
+          sms: false,
+        });
+
+        setConfirmPassword("");
+
+        console.log(response, "response");
+      } else {
+        toast.error(responseObj.message, {
+          position: toast.POSITION.TOP_RIGHT,
+          theme: "colored",
+          draggable: true,
+          autoClose:5000
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const createSubAdmin = async (data) => {
+    try {
+      setPasswordStatus(true);
+      setImageError(false);
+      const token = await getAccessToken();
+
+      const url = AdminAuthorURL.subAdmin.createSubAdmin;
+
+      console.log("create subadmin is called");
+
+      const formData = new FormData();
+
+      formData.append("name", data.name);
+      formData.append("email", data.email);
+      formData.append("zipCode", data.zipCode);
+      formData.append("password", data.password);
+      formData.append("state", data.state);
+      formData.append("mobileNumber", data.mobileNumber);
+      formData.append("photo", image);
+      formData.append("permissions", JSON.stringify(permissions));
+
+      console.log();
+
+      const options = {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const response = await fetch(url, options);
+      const responseObj = await response.json();
+
+      if (response.ok) {
+        console.log(response);
+
+        console.log(responseObj);
+        toast.success(responseObj.message, {
+          position: toast.POSITION.TOP_RIGHT,
+          theme: "colored",
+          draggable: true,
+          autoClose:5000
+        });
+
+        reset({
+          name: "",
+          email: "",
+          mobileNumber: "",
+          password: "",
+          confirmPassword: "",
+          photo: "",
+          designation: "",
+          role: "",
+          identifyType: "",
+          identityNumber: "",
+          state: "",
+          zipCode: "",
+        });
+        selectImage();
+        setMobileNumber();
+        selectImage();
+
+        setPermissions({
+          employeeData: false,
+          callData: false,
+          document: false,
+          taxType: false,
+          invoice: false,
+          clients: false,
+          sms: false,
+        });
+
+        setConfirmPassword("");
+
+        console.log(response, "response");
+      } else {
+        toast.error(responseObj.message, {
+          position: toast.POSITION.TOP_RIGHT,
+          theme: "colored",
+          draggable: true,
+          autoClose:5000
+        });
+      }
+    } catch (e) {
+      toast.success(e.message, {
+        position: toast.POSITION.TOP_RIGHT,
+          theme: "colored",
+          draggable: true,
+          autoClose:5000
+      });
+      console.log(e);
+    }
+  };
+
+  const submitData = async (data) => {
+    if (data.password !== data.confirmPassword) {
+      setPasswordStatus(false);
+    } else {
+      console.log(adminView);
+      if (adminView) {
+        updateData(data);
+      } else {
+        createSubAdmin(data);
+      }
+    }
+  };
+
+  const getSubAdminDetails = async () => {
+    try {
+      setImageSelectionStatus(false);
+      const token = await getAccessToken();
+
+      const url = AdminAuthorURL.subAdmin.fetchSubAdmin(searchKey, page);
+
+      console.log(token, "token received");
+
+      console.log(url, "url is fine");
+
+      const options = {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const response = await fetch(url, options);
+
+      if (response.ok) {
+        const responseData = await response.json();
+
+        setTotalList(responseData.response.totalData);
+
+        setSubAdminData(responseData.response.limitedData);
+
+        console.log(responseData, "response Data received");
+      } else {
+        setSubAdminData([]);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  useEffect(() => {
+    getSubAdminDetails();
+  }, [page, searchKey]);
+
+  const loadImage = () => {
+    // Check if the provided value is a URL or a File
+    if (typeof image === "string") {
+      // If it's a URL, set the image source directly
+      return image;
+    } else if (image instanceof File) {
+      // If it's a File, create an object URL and set it as the image source
+      const objectUrl = URL.createObjectURL(image);
+      return objectUrl;
+
+      // Clean up the object URL when the component unmounts
+      return () => URL.revokeObjectURL(objectUrl);
+    }
+  };
+
+  console.log(subAdminData, "sub-admin-data");
+
+  console.log(page, "page changed");
+
+  const contextClass = {
+    success: "bg-[#00C041] text-white",
+    error: "bg-red-600 text-white",
+    info: "bg-gray-600 text-white",
+    warning: "bg-orange-400 text-white",
+    default: "bg-indigo-600 text-white",
+    dark: "bg-white-600 font-gray-300 text-white",
+  };
 
   return (
-    <div className='font-lato p-[1.2rem] lg:p-[2.5rem] bg-[#FAFAFA]'>
+    <div className='font-lato m-[1.2rem] lg:m-[2.5rem] bg-[#FAFAFA]'>
       <div className='flex flex-col   lg:bg-[#fff] lg:rounded-[0.5rem] lg:shadow-shadow   '>
         <div>
           <div className='py-[1rem] lg:p-[1.5rem]'>
@@ -243,16 +617,53 @@ const AdminSubAdmin = () => {
           </div>
 
           <div className='flex flex-col gap-[1rem] lg:mx-[1.7rem]  lg:border-solid lg:border-[0.5px] lg:border-[#D1D4D7] lg:rounded-[0.6rem]'>
-            <form className='flex flex-col gap-[1rem] lg:gap-[1.5rem] lg:pb-[1.5rem]'>
+            <form
+              onSubmit={handleSubmit(submitData)}
+              className='flex flex-col gap-[1rem] lg:gap-[1.5rem] lg:pb-[1.5rem]'>
               <div className='flex flex-row items-center justify-between lg:p-[1.5rem]'>
                 <h1 className='text-[0.8rem] text-[#1A1616] font-[700] lg:text-[1rem]'>
-                  Adding Sub-admin
+                  {adminView ? "Update Sub-admin" : "Adding Sub-admin"}
                 </h1>
-                <button
-                  type='submit'
-                  className='h-[2.3rem] lg:w-[10rem] px-[1rem] flex justify-center items-center bg-[#C5090A] rounded-[0.5rem] text-[#FFF] text-[0.5rem] lg:text-[0.8rem] font-[500]'>
-                  Create Sub-Admin
-                </button>
+
+                <div className='flex flex-row gap-[1rem]'>
+                  {adminView && (
+                    <button
+                      onClick={() => {
+                        setAdminView(false);
+                        reset({
+                          name: "",
+                          email: "",
+                          mobileNumber: "",
+                          photo: "",
+                          state: "",
+                          zipCode: "",
+                          password: "",
+                        });
+
+                        setPermissions({
+                          employeeData: false,
+                          callData: false,
+                          document: false,
+                          taxType: false,
+                          invoice: false,
+                          clients: false,
+                          sms: false,
+                        });
+
+                        selectImage();
+                      }}
+                      type='button'
+                      className='h-[2.3rem] lg:w-[6rem] px-[1rem] flex justify-center items-center bg-[#C5090A] rounded-[0.5rem] text-[#FFF] text-[0.5rem] lg:text-[0.8rem] font-[500]'>
+                      Back
+                    </button>
+                  )}
+
+                  <button
+                    type='submit'
+                    className='h-[2.3rem]  lg:w-[10rem] px-[2.5rem] lg:px-[1rem]  shrink-0 flex justify-center items-center bg-[#C5090A] rounded-[0.5rem] text-[#FFF] text-[0.5rem] lg:text-[0.8rem] font-[500]'>
+                    {adminView ? "Save" : "Create Sub Admin"}
+                  </button>
+                </div>
               </div>
 
               <div className='flex flex-col xl:flex-row gap-[1.5rem]'>
@@ -263,10 +674,18 @@ const AdminSubAdmin = () => {
                     </label>
                     <input
                       type='text'
-                      {...register("fullName")}
+                      name='name'
+                      {...register("name", {
+                        required: "This field is required",
+                      })}
                       placeholder='Ex : Manikanta'
-                      className='outline-none rounded-[0.5rem] h-[3.2rem] border border-solid border-[#D1D4D7] px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
+                      className='outline-none rounded-[0.5rem] h-[3.2rem] border border-solid border-[#D1D4D7] px-[1rem] text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem] font-[500] placeholder:text-[#E1D6D5]'
                     />
+                    {errors.name && (
+                      <p className='text-red-600 font-bold text-sm'>
+                        {errors.name.message}
+                      </p>
+                    )}
                   </div>
 
                   <div className='flex flex-col gap-[0.2rem]'>
@@ -282,118 +701,188 @@ const AdminSubAdmin = () => {
                         />
                       </div>
                       <input
-                        {...register("email")}
+                        name='email'
+                        {...register("email", {
+                          required: "*This field is required.",
+                          pattern: /^\S+@\S+$/i,
+                        })}
                         type='email'
                         placeholder='Enter Email Address'
-                        className='outline-none flex-1 rounded-[0.5rem] border-none px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
+                        className='outline-none flex-1 rounded-[0.5rem] border-none px-[1rem] text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem] font-[500] placeholder:text-[#E1D6D5]'
                       />
                     </div>
+                    {errors.email?.type === "required" && (
+                      <p className='text-red-600 font-bold text-sm'>
+                        {errors.email.message}
+                      </p>
+                    )}
+                    {errors.email?.type === "pattern" && (
+                      <p className='text-sm font-bold text-red-600'>
+                        Invalid email
+                      </p>
+                    )}
                   </div>
                   <div className='flex flex-col gap-[0.2rem]'>
                     <label className='text-[#1A1616] text-[0.6rem] lg:text-[0.8rem] font-[600]'>
                       Phone Number
                     </label>
 
-                    <PhoneInput
-                      name='mobileNumber'
+                    <PhoneInputWithCountry
                       defaultCountry='IN'
-                      {...register("mobileNumber")}
+                      name='mobileNumber'
                       control={control}
-                      className='outline-none cursor-pointer rounded-[0.5rem] h-full border border-solid border-[#D1D4D7] px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
+                      onChange={setMobileNumber}
+                      className='outline-none cursor-pointer rounded-[0.5rem]  border border-solid border-[#D1D4D7] px-[1rem] py-0 text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem] font-[500] placeholder:text-[#E1D6D5]'
                       rules={{
                         required: "*This field is required.",
                         validate: isValidPhoneNumber,
                       }}
                       style={{
-                        height: "40px",
-                        outline: "none",
+                        height: "51.2px",
+                        outline: "none ",
                       }}
                       placeholder='Enter Mobile Number'
                     />
-                    {/* 
-                    <input
-                      type='number'
-                      placeholder='Ex : 87XXXXXXXX'
-                      className='outline-none rounded-[0.5rem] h-[3.2rem] border border-solid border-[#D1D4D7] px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
-                    /> */}
-                  </div>
-                  <div className='flex flex-col gap-[0.2rem]'>
-                    <label className='text-[#1A1616] text-[0.6rem] lg:text-[0.8rem] font-[600]'>
-                      Password
-                    </label>
-
-                    <div className='flex flex-row  border border-solid border-[#D1D4D7] h-[3.2rem] rounded-[0.5rem]'>
-                      <div className='flex items-center pl-[1rem]'>
-                        <Icon
-                          icon='mdi:password'
-                          className='text-[#E1D6D5] text-[1rem] lg:text-[1.5rem]'
-                        />
+                    {errors?.mobileNumber?.type === "required" && (
+                      <div className='text-sm font-bold text-[#E92215]'>
+                        {errors.mobileNumber.message}
                       </div>
-                      <input
-                        type='password'
-                        {...register("password")}
-                        placeholder='Enter password'
-                        className='outline-none flex-1  border-none px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
-                      />
-
-                      <button className='flex items-center pr-[1rem]'>
-                        <Icon
-                          icon={showPassword ? "mdi:eye" : "mdi:eye-off"}
-                          className='text-[#E1D6D5] text-[1rem] lg:text-[1.5rem]'
-                        />
-                      </button>
-                    </div>
+                    )}
+                    {errors?.mobileNumber?.type === "validate" && (
+                      <div className='text-sm font-bold text-[#E92215]'>
+                        Invalid Mobile Number
+                      </div>
+                    )}
                   </div>
+
+                  {!adminView && (
+                    <>
+                      <div className='flex flex-col gap-[0.2rem]'>
+                        <label className='text-[#1A1616] text-[0.6rem] lg:text-[0.8rem] font-[600]'>
+                          Password
+                        </label>
+
+                        <div className='flex flex-row  border border-solid border-[#D1D4D7] h-[3.2rem] rounded-[0.5rem]'>
+                          <div className='flex items-center pl-[1rem]'>
+                            <Icon
+                              icon='mdi:password'
+                              className='text-[#E1D6D5] text-[1rem] lg:text-[1.5rem]'
+                            />
+                          </div>
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            name='password'
+                            {...register("password", {
+                              required: "This field is required",
+                            })}
+                            placeholder='Enter password'
+                            className='outline-none flex-1  border-none px-[1rem] text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem] font-[500] placeholder:text-[#E1D6D5]'
+                          />
+
+                          <button
+                            type='button'
+                            onClick={() => setShowPassword(!showPassword)}
+                            className='flex items-center pr-[1rem]'>
+                            <Icon
+                              icon={showPassword ? "mdi:eye" : "mdi:eye-off"}
+                              className='text-[#E1D6D5] text-[1rem] lg:text-[1.5rem]'
+                            />
+                          </button>
+                        </div>
+                        {errors.password && (
+                          <p className='text-red-600 font-bold text-sm'>
+                            {errors.password.message}
+                          </p>
+                        )}
+                      </div>
+                      <div className='flex flex-col gap-[0.2rem]'>
+                        <label className='text-[#1A1616] text-[0.6rem] lg:text-[0.8rem] font-[600]'>
+                          Confirm Password
+                        </label>
+
+                        <div className='flex flex-row  border border-solid border-[#D1D4D7] rounded-[0.5rem] h-[3.2rem]'>
+                          <div className='flex items-center pl-[1rem]'>
+                            <Icon
+                              icon='mdi:password'
+                              className='text-[#E1D6D5] text-[1rem] lg:text-[1.5rem]'
+                            />
+                          </div>
+                          <input
+                            type={showConfirmPassword ? "text" : "password"}
+                            {...register("confirmPassword", {
+                              required: "This field is required",
+                            })}
+                            placeholder='Enter password'
+                            className='outline-none flex-1  border-none px-[1rem] text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem] font-[500] placeholder:text-[#E1D6D5]'
+                          />
+
+                          <button
+                            type='button'
+                            onClick={() =>
+                              setConfirmPassword(!showConfirmPassword)
+                            }
+                            className='flex items-center pr-[1rem]'>
+                            <Icon
+                              icon={
+                                showConfirmPassword ? "mdi:eye" : "mdi:eye-off"
+                              }
+                              className='text-[#E1D6D5] text-[1rem] lg:text-[1.5rem]'
+                            />
+                          </button>
+                        </div>
+                        {errors.password && (
+                          <p className='text-red-600 font-bold text-sm'>
+                            {errors.password.message}
+                          </p>
+                        )}
+                        {!isPasswordMatch && (
+                          <p className='text-red-600 font-bold text-sm'>
+                            Password doesn't match
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  )}
 
                   <div className='flex flex-col gap-[0.2rem]'>
                     <label className='text-[#1A1616] text-[0.6rem] lg:text-[0.8rem] font-[600]'>
-                      Address
+                      State
                     </label>
 
                     <input
                       type='text'
+                      name='state'
+                      {...register("state", {
+                        required: "This field is required",
+                      })}
                       placeholder='Ex : Texas'
-                      className='outline-none rounded-[0.5rem] h-[3.2rem] border border-solid border-[#D1D4D7] px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
+                      className='outline-none rounded-[0.5rem] h-[3.2rem] border border-solid border-[#D1D4D7] px-[1rem] text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem] font-[500] placeholder:text-[#E1D6D5]'
                     />
+                    {errors.state && (
+                      <p className='text-red-600 font-bold text-sm'>
+                        {errors.state.message}
+                      </p>
+                    )}
                   </div>
-
                   <div className='flex flex-col gap-[0.2rem]'>
                     <label className='text-[#1A1616] text-[0.6rem] lg:text-[0.8rem] font-[600]'>
-                      Confirm Password
-                    </label>
-
-                    <div className='flex flex-row  border border-solid border-[#D1D4D7] rounded-[0.5rem] h-[3.2rem]'>
-                      <div className='flex items-center pl-[1rem]'>
-                        <Icon
-                          icon='mdi:password'
-                          className='text-[#E1D6D5] text-[1rem] lg:text-[1.5rem]'
-                        />
-                      </div>
-                      <input
-                        type='password'
-                        placeholder='Enter password'
-                        className='outline-none flex-1  border-none px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
-                      />
-
-                      <button className='flex items-center pr-[1rem]'>
-                        <Icon
-                          icon={showPassword ? "mdi:eye" : "mdi:eye-off"}
-                          className='text-[#E1D6D5] text-[1rem] lg:text-[1.5rem]'
-                        />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className='flex flex-col gap-[0.2rem]'>
-                    <label className='text-[#1A1616] text-[0.6rem] lg:text-[0.8rem] font-[600]'>
-                      Pincode
+                      Zip Code
                     </label>
 
                     <input
                       type='text'
-                      placeholder='Ex : XXXXXXX'
-                      className='outline-none rounded-[0.5rem] h-[3.2rem] border border-solid border-[#D1D4D7] px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
+                      name='zipCode'
+                      {...register("zipCode", {
+                        required: "This field is required",
+                      })}
+                      placeholder='Ex : 535558'
+                      className='outline-none rounded-[0.5rem] h-[3.2rem] border border-solid border-[#D1D4D7] px-[1rem] text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem] font-[500] placeholder:text-[#E1D6D5]'
                     />
+                    {errors.zipCode && (
+                      <p className='text-red-600 font-bold text-sm'>
+                        {errors.zipCode.message}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -402,17 +891,34 @@ const AdminSubAdmin = () => {
                     Sub-admin Image
                   </label>
 
-                  <input
-                    style={{ display: "none" }}
-                    type='file'
-                    accept='image/*'
-                    ref={imageRef}
-                    onChange={({ target: { files } }) => {
-                      if (files[0]) {
-                        selectImage(files[0]);
-                      }
-                    }}
-                  />
+                  {!adminView ? (
+                    <input
+                    
+                      style={{ display: "none" }}
+                      type='file'
+                      accept='image/*'
+                      control={control}
+                      ref={imageRef}
+                      onChange={({ target: { files } }) => {
+                        if (files[0]) {
+                          selectImage(files[0]);
+                        }
+                      }}
+                    />
+                  ) : (
+                    <input
+                      style={{ display: "none" }}
+                      type='file'
+                      accept='image/*'
+                      ref={imageRef}
+                      onChange={({ target: { files } }) => {
+                        if (files[0]) {
+                          selectImage(files[0]);
+                        }
+                      }}
+                    />
+                  )}
+
                   <div className='flex flex-col gap-[1rem] md:w-[11rem]  relative '>
                     <button
                       type='button'
@@ -429,47 +935,30 @@ const AdminSubAdmin = () => {
                         className='text-[1.1rem] text-[#000000]'
                       />
                     </button>
-                    <img
-                      src={
-                        (image && URL.createObjectURL(image)) || employeeProfile
-                      }
-                      className='h-[9rem]   w-full rounded-[0.5rem] '
-                    />
+                    {adminView ? (
+                      <img
+                        src={loadImage()}
+                        className='h-[9rem]   w-auto rounded-[0.5rem] '
+                      />
+                    ) : (
+                      <img
+                        src={
+                          (image && URL.createObjectURL(image)) ||
+                          employeeProfile
+                        }
+                        className='h-[9rem]   w-auto rounded-[0.5rem] '
+                      />
+                    )}
+
                     <p className='text-[#8888A3] text-[0.8rem] lg:text-[1rem] font-[700] self-center'>
-                      Manikanta
+                      {values.name}
                     </p>
                   </div>
-
-                  {/* <div
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop}
-                    className='flex flex-col gap-[0.5rem] '>
-                    <div className='border border-solid border-[#D1D4D7]  py-[0.9rem] px-[1.9rem] xl:px-[1.1rem] xl:py-[1.5rem]  rounded-[1.2rem] flex flex-col justify-center items-center gap-[0.5rem] lg:gap-[0.6rem] '>
-                      <button className='bg-imageGray rounded-[0.5rem] p-[0.5rem] flex justify-center items-center'>
-                        <Icon
-                          icon='bxs:image-add'
-                          className='h-[1.5rem] w-[1.5rem]  text-[#D1D4D7]'
-                        />
-                      </button>
-
-                      <div className='flex flex-row items-center gap-[1rem] text-[#D1D4D7]'>
-                        <Icon
-                          icon='ep:upload-filled'
-                          className='text-[1.5rem] '
-                        />
-                        <p className='text-[0.7rem] font-[400]'>
-                          Upload an image of owner.
-                        </p>
-                      </div>
-
-                      <p className='text-[0.7rem] text-[#D1D4D7] font-[400]'>
-                        File Format <span className='text-[#000]'>pdf</span>{" "}
-                        Recommended Size
-                        <span className='text-[#000]'>600x600</span>
-                        (1:1)
-                      </p>
-                    </div>
-                  </div> */}
+                  {errors.image && (
+                    <p className='text-red-600 font-bold text-sm'>
+                      {errors.image.message}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -478,13 +967,20 @@ const AdminSubAdmin = () => {
                   Permissions
                 </p>
 
-                <div className='lg:border-[1.067px] lg:border-solid lg:border-[#D1D4D7] grid grid-cols-2   sm:flex sm:flex-row items-center sm:flex-wrap gap-[1rem] lg:p-[1.5rem] lg:rounded-[1.2rem]'>
+                <div className='lg:border-[1.067px] lg:border-solid lg:border-[#D1D4D7] grid grid-cols-2  sm:grid-cols-3   xl:grid-cols-5  gap-[1rem] lg:p-[1.5rem] lg:rounded-[1.2rem]'>
                   <div
                     style={{
                       borderRadius: "10px",
                     }}
                     className='flex flex-row  items-center shrink-0 cursor-pointer rounded-[0.9rem] border-[1.067px]  border-solid border-[#D9D9D9] md:border-[#D1D4D7]     px-[0.8rem] lg:px-[1rem] py-[4px]'>
                     <Checkbox
+                      checked={permissions.employeeData}
+                      onChange={(e) =>
+                        setPermissions({
+                          ...permissions,
+                          employeeData: e.target.checked,
+                        })
+                      }
                       id='leads'
                       color='pink'
                       className='h-[0.8rem] w-[0.8rem] lg:h-[1rem] lg:w-[1rem] border border-solid border-[#858585] rounded-[2px]'
@@ -502,6 +998,13 @@ const AdminSubAdmin = () => {
                     }}
                     className='flex flex-row  items-center shrink-0 cursor-pointer rounded-[0.9rem] border-[1.067px]  border-solid border-[#D9D9D9] md:border-[#D1D4D7]     px-[0.8rem] lg:px-[1rem] py-[4px]'>
                     <Checkbox
+                      checked={permissions.callData}
+                      onChange={(e) =>
+                        setPermissions({
+                          ...permissions,
+                          callData: e.target.checked,
+                        })
+                      }
                       id='callData'
                       color='pink'
                       className='h-[0.8rem] w-[0.8rem] lg:h-[1rem] lg:w-[1rem] border border-solid border-[#858585] rounded-[2px]'
@@ -519,7 +1022,14 @@ const AdminSubAdmin = () => {
                     }}
                     className='flex flex-row  items-center shrink-0 cursor-pointer rounded-[0.9rem] border-[1.067px]  border-solid border-[#D9D9D9] md:border-[#D1D4D7]     px-[0.8rem] lg:px-[1rem] py-[4px]'>
                     <Checkbox
+                      checked={permissions.document}
                       id='document'
+                      onChange={(e) =>
+                        setPermissions({
+                          ...permissions,
+                          document: e.target.checked,
+                        })
+                      }
                       color='pink'
                       className='h-[0.8rem] w-[0.8rem] lg:h-[1rem] lg:w-[1rem] border border-solid border-[#858585] rounded-[2px]'
                     />
@@ -536,6 +1046,13 @@ const AdminSubAdmin = () => {
                     }}
                     className='flex flex-row  items-center shrink-0 cursor-pointer rounded-[0.9rem] border-[1.067px]  border-solid border-[#D9D9D9] md:border-[#D1D4D7]     px-[0.8rem] lg:px-[1rem] py-[4px]'>
                     <Checkbox
+                      checked={permissions.taxType}
+                      onChange={(e) =>
+                        setPermissions({
+                          ...permissions,
+                          taxType: e.target.checked,
+                        })
+                      }
                       id='taxType'
                       color='pink'
                       className='h-[0.8rem] w-[0.8rem] lg:h-[1rem] lg:w-[1rem] border border-solid border-[#858585] rounded-[2px]'
@@ -553,8 +1070,15 @@ const AdminSubAdmin = () => {
                     }}
                     className='flex flex-row  items-center shrink-0 cursor-pointer rounded-[0.9rem] border-[1.067px]  border-solid border-[#D9D9D9] md:border-[#D1D4D7]     px-[0.8rem] lg:px-[1rem] py-[4px]'>
                     <Checkbox
+                      checked={permissions.invoice}
                       id='invoice'
                       color='pink'
+                      onChange={(e) =>
+                        setPermissions({
+                          ...permissions,
+                          invoice: e.target.checked,
+                        })
+                      }
                       className='h-[0.8rem] w-[0.8rem] lg:h-[1rem] lg:w-[1rem] border border-solid border-[#858585] rounded-[2px]'
                     />
 
@@ -568,8 +1092,15 @@ const AdminSubAdmin = () => {
                     style={{
                       borderRadius: "10px",
                     }}
-                    className='flex flex-row  items-center shrink-0 cursor-pointer rounded-[0.9rem] border-[1.067px]  border-solid border-[#D9D9D9] md:border-[#D1D4D7]     px-[0.8rem] lg:px-[1rem] py-[4px]'>
+                    className='flex flex-row  items-center shrink-0  cursor-pointer rounded-[0.9rem] border-[1.067px]  border-solid border-[#D9D9D9] md:border-[#D1D4D7]     px-[0.8rem] lg:px-[1rem] py-[4px]'>
                     <Checkbox
+                      checked={permissions.registeredClients}
+                      onChange={(e) =>
+                        setPermissions({
+                          ...permissions,
+                          registeredClients: e.target.checked,
+                        })
+                      }
                       id='registeredClients'
                       color='pink'
                       className='h-[0.8rem] w-[0.8rem] lg:h-[1rem] lg:w-[1rem] border border-solid border-[#858585] rounded-[2px]'
@@ -587,8 +1118,15 @@ const AdminSubAdmin = () => {
                     }}
                     className='flex flex-row  items-center shrink-0 cursor-pointer rounded-[0.9rem] border-[1.067px]  border-solid border-[#D9D9D9] md:border-[#D1D4D7]     px-[0.8rem] lg:px-[1rem] py-[4px]'>
                     <Checkbox
+                      checked={permissions.SMS}
                       id='SMS'
                       color='pink'
+                      onChange={(e) =>
+                        setPermissions({
+                          ...permissions,
+                          sms: e.target.checked,
+                        })
+                      }
                       className='h-[0.8rem] w-[0.8rem] lg:h-[1rem] lg:w-[1rem] border border-solid border-[#858585] rounded-[2px]'
                     />
 
@@ -609,14 +1147,12 @@ const AdminSubAdmin = () => {
             <div className='flex flex-row h-[2.5rem] w-full '>
               <input
                 type='text'
+                value={searchKey}
+                onChange={(e) => setSearchKey(e.target.value)}
                 className='flex w-full lg:w-[15rem] outline-none border-r-0  border-[0.5px] border-solid border-[#D1D4D7] rounded-s-[0.5rem] px-[1rem] py-[0.5rem] text-black font-[500] text-[0.7rem]  placeholder-[#D1D4D7]'
                 placeholder='Search by Name or Phone or Email'
               />
-              {/* <input
-                  type='text'
-                  placeholder='Search by Name or Phone or Email'
-                  className='flex-1  items-center   h-full rounded-s-[0.5rem] border-[0.5px] border-solid border-[#D1D4D7] border-r-0 outline-none placeholder:text-[#D1D4D7]'
-                /> */}
+             
 
               <button
                 style={{
@@ -628,7 +1164,7 @@ const AdminSubAdmin = () => {
             </div>
 
             <div className='flex flex-row items-center gap-[1rem]'>
-              <select
+              {/* <select
                 className='border-none bg-transparent outline-none text-[#1A1616] text-[0.8rem] lg:text-[1rem] font-[500]  shrink-0'
                 placeholder='Select Status'>
                 <option disabled selected>
@@ -636,7 +1172,7 @@ const AdminSubAdmin = () => {
                 </option>
                 <option>inProgress</option>
                 <option>Completed</option>
-              </select>
+              </select> */}
 
               <button className='rounded-[0.5rem] w-full sm:w-[8rem] flex flex-row justify-center items-center gap-[0.6rem] p-[0.5rem] bg-[#C5090A] text-[#FFF] font-[700] text-[0.7rem] '>
                 <Icon
@@ -652,14 +1188,28 @@ const AdminSubAdmin = () => {
           <div>
             <DataTable
               columns={columns}
-              data={sampleData}
+              data={subAdminData}
               customStyles={customStyles}
               pagination
-              paginationComponent={CustomPagination}
+              paginationComponent={() =>
+                CustomPagination({
+                  rowsPerPage: 10,
+                  rowCount: totalList,
+                  currentPage: page,
+                  onChangePage: setPage,
+                })
+              }
             />
           </div>
         </div>
       </div>
+      <ToastContainer
+        icon={true}
+        toastClassName={({ type }) =>
+          contextClass[type || "default"] +
+          " relative flex p-2 h-[4rem] text-white  text-[1rem] font-[500]  rounded-tr justify-between overflow-hidden cursor-pointer"
+        }
+      />
     </div>
   );
 };
