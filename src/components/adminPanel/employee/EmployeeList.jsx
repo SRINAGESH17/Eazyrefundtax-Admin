@@ -31,7 +31,7 @@ const EmployeeList = () => {
   const columns = [
     {
       name: "SL",
-      cell: (row, index) => index + 1,
+      selector: (row, index) => index+(page-1)*10 + 1,
     },
     {
       name: "Employee ID",
@@ -135,7 +135,7 @@ const EmployeeList = () => {
       cell: (row) => (
         <div className={`flex flex-row items-center gap-[1rem]`}>
           <button
-            onClick={() => navigate(`/employee/${row.id}`)}
+            onClick={() => navigate(`/employee/${row._id}`)}
             style={{ border: "0.727px solid #D9D9D9" }}
             className='bg-[#FFF] rounded-[7.23px] flex justify-center items text-[1.1rem] text-[#000000] p-[0.4rem]'>
             <Icon icon='mdi:eye' />
@@ -155,7 +155,7 @@ const EmployeeList = () => {
           </Popup>
 
           <button
-            onClick={() => navigate(`/employee/${row.id}`)}
+            onClick={() => navigate(`/employee/${row._id}`)}
             style={{ border: "0.727px solid #D9D9D9" }}
             className='bg-[#FFF] rounded-[7.23px] flex justify-center items text-[1.1rem] text-[#000000] p-[0.4rem]'>
             <Icon icon='ic:baseline-edit' />
@@ -253,7 +253,7 @@ const EmployeeList = () => {
 
       setEmployeeData(employeesArray);
 
-      setTotalList(responseData.totalData);
+      setTotalList(responseData.response.totalData);
     } else {
       setEmployeeData([]);
     }
