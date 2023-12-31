@@ -163,66 +163,11 @@ const employeeCustomStyles = {
     },
   },
 };
-const sampleData = [
-  {
-    slotType: "5L",
-    totalCalls: "9999",
-    assignedCalls: "9999",
-    unassignedCalls: "0",
-  },
-  {
-    slotType: "F1",
-    totalCalls: "4999",
-    assignedCalls: "4999",
-    unassignedCalls: "0",
-  },
-  {
-    slotType: "First data",
-    totalCalls: "6905",
-    assignedCalls: "6900",
-    unassignedCalls: "0",
-  },
-  {
-    slotType: "LAST 50",
-    totalCalls: "13583",
-    assignedCalls: "991358399",
-    unassignedCalls: "0",
-  },
-  {
-    slotType: "MEGA",
-    totalCalls: "14958",
-    assignedCalls: "14958",
-    unassignedCalls: "0",
-  },
-  {
-    slotType: "MEGA 5K",
-    totalCalls: "5000",
-    assignedCalls: "5000",
-    unassignedCalls: "0",
-  },
-  {
-    slotType: "LAST 50",
-    totalCalls: "13583",
-    assignedCalls: "991358399",
-    unassignedCalls: "0",
-  },
-  {
-    slotType: "TIRU 1",
-    totalCalls: "2216",
-    assignedCalls: "2216",
-    unassignedCalls: "0",
-  },
-  {
-    slotType: "Total Calls",
-    totalCalls: "57655",
-    assignedCalls: "57650",
-    unassignedCalls: "0",
-  },
-];
+
 
 const employeeColumns = [
   {
-    name: "Employee Id",
+    name: "S.No.",
     cell: (row, index) => <p>{index + 1}</p>,
     width: "200px",
     center: true,
@@ -230,23 +175,30 @@ const employeeColumns = [
   {
     name: "Employee Name",
     id: "employeeName",
-    selector: (row, index) => row.employeeName,
+    cell: (row, index) => {
+      return (
+        <div className="flex flex-col gap-[0.5rem] items-center">
+          <p>{row.employeeName}</p>
+          <p>{row.employeeId}</p>
+        </div>
+      )
+    },
     center: true,
   },
   {
     name: "Assigned Calls",
     center: true,
     cell: (row) => {
-      const { assignedCalls } = row;
+      const { slotWiseCounts } = row;
 
       return (
-        <div className='flex flex-col gap-[1rem]'>
+        <div className='flex flex-col gap-[1rem] items-start'>
           <h2 className='text-[0.8rem] text-[#1A1616] font-[600]'>
-            Total - {row.totalCalls}
+            Total - {row.totalAssignedCalls}
           </h2>
-          {assignedCalls.map((call) => (
+          {slotWiseCounts.map((call) => (
             <p className='text-[#8888A3] text-[0.8rem] font-[500] '>
-              {call.fileName} - {call.data}
+              {call.slotName} - {call.count}
             </p>
           ))}
         </div>
@@ -263,83 +215,17 @@ const employeeColumns = [
     style: { border: "none" },
 
     cell: (row) => (
-      <div className='flex flex-col gap-[1rem]'>
-        <p className='text-[0.8rem] text-[#8888A3] font-[500]'>
-          Non Contacted-{row.nonContacted}
-        </p>
-        <p className='text-[0.8rem] text-[#8888A3] font-[500]'>
-          Non Contacted-{row.nonContacted}
-        </p>
+      <div className='flex flex-col gap-[1rem] items-start'>
+        {row.statusWiseCounts.map((call) => (
+            <p className='text-[#8888A3] text-[0.8rem] font-[500] '>
+              {call.status} - {call.count}
+            </p>
+          ))}
       </div>
     ),
   },
 ];
 
-const employeeSampleData = [
-  {
-    employeeName: "Manikanta Putta",
-    totalCalls: 3500,
-    assignedCalls: [
-      {
-        fileName: "Al",
-        data: 300,
-      },
-      {
-        fileName: "Al",
-        data: 300,
-      },
-      {
-        fileName: "Al",
-        data: 300,
-      },
-    ],
-
-    nonContacted: 29,
-    wrongNumber: 30,
-  },
-  {
-    employeeName: "Manikanta Putta",
-    totalCalls: 3500,
-    assignedCalls: [
-      {
-        fileName: "Al",
-        data: 300,
-      },
-      {
-        fileName: "Al",
-        data: 300,
-      },
-      {
-        fileName: "Al",
-        data: 300,
-      },
-    ],
-
-    nonContacted: 29,
-    wrongNumber: 30,
-  },
-  {
-    employeeName: "Manikanta Putta",
-    totalCalls: 3500,
-    assignedCalls: [
-      {
-        fileName: "Al",
-        data: 300,
-      },
-      {
-        fileName: "Al",
-        data: 300,
-      },
-      {
-        fileName: "Al",
-        data: 300,
-      },
-    ],
-
-    nonContacted: 29,
-    wrongNumber: 30,
-  },
-];
 
 const CallLog = () => {
   const { getAccessToken } = useAuth();
@@ -389,6 +275,10 @@ const CallLog = () => {
       const response = await fetch(url, options);
 
       const responseData = await response.json();
+      if(!response.ok){
+        throw new Error(responseData.message)
+      }
+      setCallDataEmployeeWise(responseData.response)
 
       console.log(response, "call data employee wise fetched");
       console.log(responseData, "call data received");
@@ -414,7 +304,7 @@ const CallLog = () => {
 
         <DataTable
           columns={employeeColumns}
-          data={employeeSampleData}
+          data={callDataEmployeeWise}
           customStyles={employeeCustomStyles}
         />
       </div>

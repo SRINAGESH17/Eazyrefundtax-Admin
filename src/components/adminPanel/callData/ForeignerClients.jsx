@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/themes/material_red.css";
 import { Icon } from "@iconify/react";
@@ -9,33 +9,30 @@ import DataTable from "react-data-table-component";
 import CustomPagination from "../../../helpers/CustomPagination";
 
 import CustomCheckbox from "../../../helpers/CustomCheckbox";
+import { useAuth } from "../../../stores/AuthContext";
+import { AdminAuthorURL } from "../../../baseUrl/BaseUrl";
 
 const ForeignerClients = () => {
-  const [fromDate, setFromDate] = useState(null);
-
-  const [endDate, setEndDate] = useState(null);
-  const dateOptions = {
-    mode: "range",
-    format: "d-m-Y",
-  };
-
+ 
+  const [callsData, setCallsData] = useState([]);
+  const [callsCount, setCallsCount] = useState();
+ 
   const selectRef = useRef(null);
 
-  const handleDateChange = (selectedDates) => {
-    console.log(selectedDates.length);
+  const [searchKey, setSearchKey] = useState("");
 
-    if (selectedDates.length === 1) {
-      setFromDate(selectedDates[0]);
-    }
-    if (selectedDates.length === 2) {
-      setEndDate(selectedDates[1]);
-    }
-  };
+  const [page, setPage] = useState(1);
+
+  const [status, setStatus] = useState("");
+
+  const { getAccessToken } = useAuth();
+
+ 
 
   const columns = [
     {
       name: "SL",
-      cell: (row, index) => index + 1,
+      cell: (row, index) => (page-1)*10+index + 1,
     },
 
     {
@@ -47,8 +44,8 @@ const ForeignerClients = () => {
       name: "Name",
       cell: (row) => (
         <div className='flex flex-row items-center gap-[1rem]'>
-          <img src={row.image} className={"h-[3rem] w-[3rem] rounded-full"} />
-          <p>{row.name}</p>
+         
+          <p>{row.callerInfo.name}</p>
         </div>
       ),
       width: "270px",
@@ -57,8 +54,8 @@ const ForeignerClients = () => {
       name: "Contact Information",
       cell: (row) => (
         <div className='flex flex-col gap-[0.2rem]'>
-          <p>{row.email}</p>
-          <p>{row.phoneNumber}</p>
+          <p>{row.callerInfo.email}</p>
+          <p>{row.callerInfo.mobileNumber}</p>
         </div>
       ),
       width: "300px",
@@ -67,7 +64,7 @@ const ForeignerClients = () => {
     {
       name: "Call Progress status",
       id: "callProgressStatus",
-      selector: (row) => row.callProgressStatus,
+      selector: (row) => row.status,
       width: "200px",
     },
     {
@@ -84,7 +81,7 @@ const ForeignerClients = () => {
     {
       name: "Employee Mobile Number",
       id: "employeePhoneNumber",
-      selector: (row) => row.employeePhoneNumber,
+      selector: (row) => row.employeeMobileNumber,
       width: "190px",
     },
     {
@@ -159,77 +156,46 @@ const ForeignerClients = () => {
       },
     },
   };
+  const fetchCallData = async () => {
+    try {
+      const token = await getAccessToken();
 
-  const sampleData = [
-    {
-      callId: "12345",
-      slotName: "Caller",
-      image:
-        "https://res.cloudinary.com/deh78ntmd/image/upload/v1698809102/Picture_z544ro.png",
-      name: "Mnaikanta",
-      email: "manikanta@000.com",
-      phoneNumber: "0000",
-      callProgressStatus: "Not Interested",
-      comment: "Own Filling",
-      employeeName: "Raju",
-      employeePhoneNumber: "912188",
-    },
-    {
-      callId: "12345",
-      slotName: "Caller",
-      image:
-        "https://res.cloudinary.com/deh78ntmd/image/upload/v1698809102/Picture_z544ro.png",
-      name: "Mnaikanta",
-      email: "manikanta@000.com",
-      phoneNumber: "0000",
-      callProgressStatus: "Not Interested",
-      comment: "Own Filling",
-      employeeName: "Raju",
-      employeePhoneNumber: "912188",
-    },
-    {
-      callId: "12345",
-      slotName: "Caller",
-      image:
-        "https://res.cloudinary.com/deh78ntmd/image/upload/v1698809102/Picture_z544ro.png",
-      name: "Mnaikanta",
-      email: "manikanta@000.com",
-      phoneNumber: "0000",
-      callProgressStatus: "Not Interested",
-      comment: "Own Filling",
-      employeeName: "Raju",
-      employeePhoneNumber: "912188",
-    },
-    {
-      callId: "12345",
-      slotName: "Caller",
-      image:
-        "https://res.cloudinary.com/deh78ntmd/image/upload/v1698809102/Picture_z544ro.png",
-      name: "Mnaikanta",
-      email: "manikanta@000.com",
-      phoneNumber: "0000",
-      callProgressStatus: "Not Interested",
-      comment: "Own Filling",
-      employeeName: "Raju",
-      employeePhoneNumber: "912188",
-    },
-  ];
+      const url = AdminAuthorURL.callData.fetchCalls(searchKey,status,page);
+
+      const options = {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const response = await fetch(url, options);
+
+      const responseData = await response.json();
+      if (!response.ok) {
+        throw new Error(responseData.message)
+      }
+
+      setCallsData(responseData.response.limitedData);
+       setCallsCount(responseData.response.totalData)
+      console.log(response);
+
+      console.log(responseData, "uploaded calls data received");
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  useEffect(() => {
+    fetchCallData();
+  }, [page, searchKey, status]);
+
 
   return (
     <div className='flex flex-col gap-[1rem] '>
       <div className='flex flex-col md:flex-row md:self-end gap-[1rem] lg:px-[2.5rem] xl:px-[4.5rem]'>
         <div className='flex flex-row items-center gap-[1rem] '>
-          <button className='rounded-[4px] flex flex-row items-center gap-[0.5rem] border border-solid border-[#D1D4D7] h-[1.9rem] px-[0.8rem] text-[#8888A3]  '>
-            <Icon icon='lucide:filter' className='text-[1rem]' />
-            <span className='text-[0.6rem]'>Filter</span>
-          </button>
-
-          <Flatpickr
-            placeholder='Select Date'
-            className='form-control w-full outline-none border border-solid border-[#D1D4D7] placeholder:text-[#8888A3]  px-[0.8rem] text-[0.6rem] h-[1.9rem] '
-            options={dateOptions}
-            onChange={(e) => handleDateChange(e)}
-          />
+         
 
           <div className='rounded-[4px] flex flex-row items-center border border-solid border-[#D1D4D7] h-[1.9rem] pr-[0.8rem]'>
             <select
@@ -246,6 +212,7 @@ const ForeignerClients = () => {
             placeholder='Search by Name or Phone or Email'
             type='text'
             className='flex-1 h-full  outline-none border-r-0 border-[0.5px] border-solid border-[#D1D4D7] rounded-s-[0.5rem] px-[0.5rem] text-[0.7rem] font-[500] text-[#8888A3] placeholder-[#8888A3]'
+            onChange={(e)=>setSearchKey(e.target.value)}
           />
 
           <button className='bg-[#C5090A] rounded-e-[0.5rem] px-[1.2rem] text-white text-[0.7rem] font-[500]'>
@@ -257,10 +224,17 @@ const ForeignerClients = () => {
       <div className='lg:px-[3rem]'>
         <DataTable
           columns={columns}
-          data={sampleData}
+          data={callsData}
           customStyles={customStyles}
           pagination
-          paginationComponent={CustomPagination}
+          paginationComponent={() =>
+            CustomPagination({
+              rowsPerPage: 10,
+              rowCount: callsCount,
+              currentPage: page,
+              onChangePage: setPage,
+            })
+          }
           selectableRows
           selectableRowsComponent={CustomCheckbox}
         />
