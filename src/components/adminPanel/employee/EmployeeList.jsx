@@ -58,7 +58,7 @@ const EmployeeList = () => {
   const columns = [
     {
       name: "SL",
-      cell: (row, index) => (page - 1) * 10 + index + 1,
+      selector: (row, index) => index+(page-1)*10 + 1,
     },
     {
       name: "Employee ID",
