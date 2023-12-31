@@ -285,13 +285,19 @@ const AuthPage = () => {
             <div className='text-[1.2rem] pl-[0.5rem] xs:pl-[1rem]  cursor-pointer '>
               {console.log(showPassword)}
 
-              <button type='button' onClick={showUserPassword}>
-                {showPassword ? (
-                  <Icon icon='mdi:eye' className='text-[#1A1A1A]' />
-                ) : (
-                  <Icon icon='mdi:eye-off' className='text-[#1A1A1A]' />
-                )}
-              </button>
+              {showPassword ? (
+                <Icon
+                  onClick={showUserPassword}
+                  icon='mdi:eye'
+                  className='text-[#1A1A1A]'
+                />
+              ) : (
+                <Icon
+                  onClick={showUserPassword}
+                  icon='mdi:eye-off'
+                  className='text-[#1A1A1A]'
+                />
+              )}
             </div>
           </div>
           {errors.password && (

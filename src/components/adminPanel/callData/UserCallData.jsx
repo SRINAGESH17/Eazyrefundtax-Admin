@@ -29,9 +29,6 @@ const UserCallData = () => {
 
       setActiveCallersData(responseData.response);
 
-      console.log(response);
-
-      console.log(responseData, "active callers data received");
     } catch (e) {
       console.log(e);
     }

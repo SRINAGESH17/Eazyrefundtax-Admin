@@ -17,6 +17,7 @@ const statuses = [
   "FOREIGNER",
   "INTERESTED",
   "MAILSENT",
+  "PENDING",
 ];
 
 const MigratingPendingCalls = () => {
@@ -42,18 +43,19 @@ const MigratingPendingCalls = () => {
       const token = await getAccessToken();
       const url = AdminAuthorURL.callData.migratePendingCalls;
 
-      const formData = new FormData();
+      // const formData = new FormData();
 
-      formData.append("toCallerId", data.toCallerId);
-      formData.append("callType", data.callType);
+      // formData.append("toCallerId", data.toCallerId);
+      // formData.append("callType", data.callType);
 
-      formData.append("numberOfCalls", data.numberOfCalls);
+      // formData.append("numberOfCalls", data.numberOfCalls);
 
       const options = {
         method: "POST",
-        body: formData,
+        body: JSON.stringify(data),
         headers: {
           Authorization: `Bearer ${token}`,
+          "content-type": "application/json",
         },
       };
       const response = await fetch(url, options);

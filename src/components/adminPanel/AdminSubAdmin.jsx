@@ -119,6 +119,7 @@ const AdminSubAdmin = () => {
   const [isImageSelected, setImageSelectionStatus] = useState(false);
 
   const [mobileNumber, setMobileNumber] = useState();
+  const [column, setColumns] = useState();
 
   const [permissions, setPermissions] = useState({
     employeeData: false,
@@ -202,7 +203,7 @@ const AdminSubAdmin = () => {
   const columns = [
     {
       name: "SL",
-      cell: (row, index) => (page - 1) * 10 + index + 1,
+      selector: (row, index) => (page - 1) * 10 + index + 1,
     },
     {
       name: "Sub-admin ID",
@@ -296,6 +297,7 @@ const AdminSubAdmin = () => {
       ),
     },
   ];
+
 
   const sampleData = [
     {

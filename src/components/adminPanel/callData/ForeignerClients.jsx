@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/themes/material_red.css";
 import { Icon } from "@iconify/react";
@@ -9,8 +9,11 @@ import DataTable from "react-data-table-component";
 import CustomPagination from "../../../helpers/CustomPagination";
 
 import CustomCheckbox from "../../../helpers/CustomCheckbox";
+import { AdminAuthorURL } from "../../../baseUrl/BaseUrl";
+import { useAuth } from "../../../stores/AuthContext";
 
 const ForeignerClients = () => {
+  const [callsData, setCallsData] = useState([]);
   const [fromDate, setFromDate] = useState(null);
 
   const [endDate, setEndDate] = useState(null);
@@ -32,6 +35,52 @@ const ForeignerClients = () => {
     }
   };
 
+  const [searchKey, setSearchKey] = useState("");
+
+  const [page, setPage] = useState(1);
+  const [totalList, setTotalList] = useState();
+
+  const [status, setStatus] = useState("FOREIGNER");
+
+  const { getAccessToken } = useAuth();
+
+  const fetchCallData = async () => {
+    try {
+      const token = await getAccessToken();
+
+      console.log(status, "s");
+
+      const url = AdminAuthorURL.callData.fetchCalls(searchKey, status, page);
+
+      const options = {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const response = await fetch(url, options);
+
+      const responseData = await response.json();
+
+      if (response.ok) {
+        setCallsData(responseData.response.limitedData);
+        setTotalList(responseData.response.totalData);
+        console.log(response);
+
+        console.log(responseData, "uploaded calls data received");
+      } else {
+        setCallsData([]);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  useEffect(() => {
+    fetchCallData();
+  }, [page, searchKey, status]);
+
   const columns = [
     {
       name: "SL",
@@ -48,7 +97,7 @@ const ForeignerClients = () => {
       cell: (row) => (
         <div className='flex flex-row items-center gap-[1rem]'>
           <img src={row.image} className={"h-[3rem] w-[3rem] rounded-full"} />
-          <p>{row.name}</p>
+          <p>{row.callerInfo.name}</p>
         </div>
       ),
       width: "270px",
@@ -57,7 +106,7 @@ const ForeignerClients = () => {
       name: "Contact Information",
       cell: (row) => (
         <div className='flex flex-col gap-[0.2rem]'>
-          <p>{row.email}</p>
+          <p>{row.callerInfo.email}</p>
           <p>{row.phoneNumber}</p>
         </div>
       ),
@@ -257,7 +306,7 @@ const ForeignerClients = () => {
       <div className='lg:px-[3rem]'>
         <DataTable
           columns={columns}
-          data={sampleData}
+          data={callsData}
           customStyles={customStyles}
           pagination
           paginationComponent={CustomPagination}

@@ -26,6 +26,7 @@ const UploadedCalls = () => {
   const [searchKey, setSearchKey] = useState("");
 
   const [page, setPage] = useState(1);
+  const [totalList, setTotalList] = useState();
 
   const [status, setStatus] = useState("");
 
@@ -35,7 +36,9 @@ const UploadedCalls = () => {
     try {
       const token = await getAccessToken();
 
-      const url = AdminAuthorURL.callData.fetchCalls(searchKey, page, status);
+      console.log(status, "s");
+
+      const url = AdminAuthorURL.callData.fetchCalls(searchKey, status, page);
 
       const options = {
         method: "GET",
@@ -48,11 +51,15 @@ const UploadedCalls = () => {
 
       const responseData = await response.json();
 
-      setCallsData(responseData.response);
+      if (response.ok) {
+        setCallsData(responseData.response.limitedData);
+        setTotalList(responseData.response.totalData);
+        console.log(response);
 
-      console.log(response);
-
-      console.log(responseData, "uploaded calls data received");
+        console.log(responseData, "uploaded calls data received");
+      } else {
+        setCallsData([]);
+      }
     } catch (e) {
       console.log(e);
     }
@@ -92,8 +99,8 @@ const UploadedCalls = () => {
       name: "Caller Name",
       cell: (row) => (
         <div className='flex flex-row items-center gap-[1rem]'>
-          <img src={row.image} className={"h-[3rem] w-[3rem] rounded-full"} />
-          <p>{row.name}</p>
+          {/* <img src={row.image} className={"h-[3rem] w-[3rem] rounded-full"} /> */}
+          <p>{row.callerInfo.name}</p>
         </div>
       ),
       width: "270px",
@@ -102,7 +109,7 @@ const UploadedCalls = () => {
       name: "Caller Contact Information",
       cell: (row) => (
         <div className='flex flex-col gap-[0.2rem]'>
-          <p>{row.email}</p>
+          <p>{row.callerInfo.email}</p>
           <p>{row.phoneNumber}</p>
         </div>
       ),
@@ -252,6 +259,7 @@ const UploadedCalls = () => {
     },
   ];
 
+  console.log(callsData);
   return (
     <div className='flex flex-col gap-[1rem] w-full '>
       <div className='flex flex-col md:flex-row md:self-end gap-[1rem] lg:px-[2.5rem] xl:px-[4.5rem]'>
@@ -297,7 +305,7 @@ const UploadedCalls = () => {
       <div className='lg:px-[3em]'>
         <DataTable
           columns={columns}
-          data={sampleData}
+          data={callsData}
           customStyles={customStyles}
           pagination
           paginationComponent={CustomPagination}
