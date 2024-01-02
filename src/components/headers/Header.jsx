@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 import Badge from "@mui/material/Badge";
+import { Link } from "react-router-dom";
 
 import {
   Menu,
@@ -76,27 +77,19 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 </h4>
               </div>
               <button>
-          <Icon icon='icon-park-outline:down' />
-        </button>
+                <Icon icon='icon-park-outline:down' />
+              </button>
             </div>
           </MenuHandler>
           <MenuList>
             <MenuItem>Profile</MenuItem>
-            <MenuItem>Forgot Password</MenuItem>
+            <Link to='forgot-password'>
+              <MenuItem>Forgot Password</MenuItem>
+            </Link>
+
             <MenuItem>Settings</MenuItem>
           </MenuList>
         </Menu>
-
-     
-
-        {/* <div className=''>
-          <select
-            onChange={(e) => setUserName(e.target.value)}
-            className='border-none'>
-            <option value={"satyendra"}>Satyendra</option>
-            <option value={"nagesh"}>Nagesh</option>
-          </select>
-        </div> */}
       </div>
     </div>
   );

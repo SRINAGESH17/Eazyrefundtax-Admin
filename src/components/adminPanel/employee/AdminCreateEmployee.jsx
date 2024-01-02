@@ -5,14 +5,19 @@ import { useForm, Controller } from "react-hook-form";
 
 import { Select, Option } from "@material-tailwind/react";
 
-import PhoneInput from "react-phone-number-input";
+import PhoneInputWithCountry from "react-phone-number-input";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
+import { ThreeDots } from "react-loader-spinner";
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.minimal.css";
 
 import employeeProfile from "../../../assets/employeeProfile.png";
 
 import { AdminAuthorURL } from "../../../baseUrl/BaseUrl";
 import { useAuth } from "../../../stores/AuthContext";
+import { fi } from "date-fns/locale";
 
 const AdminCreateEmployee = () => {
   const {
@@ -28,7 +33,7 @@ const AdminCreateEmployee = () => {
 
   const identityRef = useRef(null);
 
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState();
 
   const [role, selectRole] = useState("");
 
@@ -55,76 +60,114 @@ const AdminCreateEmployee = () => {
   const [confirmPassword, setPassword] = useState();
 
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
+  const [showLoader, setShowLoader] = useState(false);
 
   const { getAccessToken } = useAuth();
-  console.log(value)
+  console.log(value);
 
   const submitData = async (data) => {
     if (data.password !== confirmPassword) {
-      setConfirmPasswordError(
-        "Password doesn't match please re-enter correctly"
-      );
+      setConfirmPasswordError("Password doesn't match ");
+    } else {
+      setConfirmPasswordError("");
+      try {
+        setShowLoader(true);
+
+        console.log(data, "data for creating employee");
+        const formData = new FormData();
+        formData.append("name", data.name);
+        formData.append("mobileNumber", value);
+        formData.append("email", data.email);
+        formData.append("password", data.password);
+        formData.append("photo", employeeImage);
+        formData.append("_IDURL", identityFile);
+        formData.append("designation", data.designation);
+        formData.append("role", data.role);
+        formData.append("identityType", data.identityType);
+        formData.append("identityNumber", data.identityNumber);
+        formData.append("state", data.state);
+        formData.append("zipCode", data.zipCode);
+
+        console.log(formData);
+
+        const token = await getAccessToken();
+
+        console.log(token);
+
+        const url = AdminAuthorURL.employee.createEmployee;
+
+        console.log(url);
+
+        const options = {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+
+        const response = await fetch(url, options);
+
+        const responseObj = await response.json();
+
+        if (response.ok) {
+          setShowLoader(false);
+          toast.success(responseObj.message, {
+            position: toast.POSITION.TOP_RIGHT,
+            theme: "colored",
+            draggable: true,
+          });
+
+          reset({
+            name: "",
+            email: "",
+            mobileNumber: "",
+            password: "",
+            photo: "",
+            designation: "",
+            role: "",
+            identifyType: "",
+            identityNumber: "",
+            state: "",
+            zipCode: "",
+          });
+
+          setValue("");
+          setConfirmPassword("");
+
+          setIdentityFile();
+          setEmployeeImage();
+
+          console.log(responseObj);
+        } else {
+          setShowLoader(false);
+          toast.error(responseObj.message, {
+            position: toast.POSITION.TOP_RIGHT,
+            theme: "colored",
+            draggable: true,
+          });
+        }
+      } catch (e) {
+        setShowLoader(false);
+        console.log(e);
+      }
     }
-
-
-    try {
-      const formData = new FormData()
-      formData.append("name",data.name)
-      formData.append("mobileNumber",value)
-      formData.append("email",data.email)
-      formData.append("photo",employeeImage)
-      formData.append("_IDURL",identityFile)
-      formData.append("designation",data.designation)
-      formData.append("role",data.role)
-      formData.append("identityType", data.identityType)
-      formData.append("identityNumber",data.identityNumber)
-      formData.append("state",data.state)
-      formData.append("zipCode",data.zipCode)
-      
-      
-
-
-
-      // const formData = {
-      //   ...data,
-      //   mobileNumber: value,
-      //   photo: employeeImage,
-      //   _IDURL: identityFile,
-      // };
-  
-      console.log(formData);
-  
-     
-  
-      const token = await getAccessToken();
-  
-      console.log(token);
-  
-      const url = AdminAuthorURL.employee.createEmployee;
-  
-      console.log(url);
-  
-      const options = {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: `Bearer ${token}`,
-          
-        },
-      };
-  
-      const response = await fetch(url, options);
-
-      const responseObj = await response.json()
-  
-      console.log(responseObj);
-    }
-    catch(e) {
-      console.log(e)
-    }
-
-    
   };
+
+  const contextClass = {
+    success: "bg-[#00C041]",
+    error: "bg-red-600",
+    info: "bg-gray-600",
+    warning: "bg-orange-400",
+    default: "bg-indigo-600",
+    dark: "bg-white-600 font-gray-300",
+  };
+
+  const fileName =
+    identityFile?.name &&
+    identityFile.name.split("").slice(0, 10).join("") + ".png";
+
+  console.log(errors);
 
   return (
     <div
@@ -148,13 +191,17 @@ const AdminCreateEmployee = () => {
                 <input
                   type='text'
                   {...register("name", {
-                    required: true,
-                    message: "This field is required",
+                    required: "This field is required",
                   })}
                   name='name'
                   placeholder='Ex : Manikanta'
-                  className='outline-none rounded-[0.5rem] h-[3.2rem] border border-solid border-[#D1D4D7] px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
+                  className='outline-none rounded-[0.5rem] h-[3.2rem] border border-solid border-[#D1D4D7] px-[1rem] text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem] font-[500] placeholder:text-[#E1D6D5]'
                 />
+                {errors.name && (
+                  <p className='text-red-600 font-bold text-sm'>
+                    {errors.name.message}
+                  </p>
+                )}
               </div>
 
               <div className='flex flex-col gap-[0.2rem]'>
@@ -173,33 +220,55 @@ const AdminCreateEmployee = () => {
                     type='email'
                     name='email'
                     {...register("email", {
-                      required: true,
-                      message: "This filed is required",
+                      required: "This field is required.",
+                      pattern: /^\S+@\S+$/i,
                     })}
                     placeholder='Enter Email Address'
-                    className='outline-none flex-1 rounded-[0.5rem] border-none px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
+                    className='outline-none flex-1 rounded-[0.5rem] border-none px-[1rem] text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem]  font-[500] placeholder:text-[#E1D6D5]'
                   />
                 </div>
+                {errors.email?.type === "required" && (
+                  <p className='text-red-600 font-bold text-sm'>
+                    {errors.email.message}
+                  </p>
+                )}
+                {errors.email?.type === "pattern" && (
+                  <p className='text-sm font-bold text-red-600'>
+                    Invalid email
+                  </p>
+                )}
               </div>
               <div className='flex flex-col gap-[0.2rem]'>
                 <label className='text-[#1A1616] text-[0.6rem] lg:text-[0.8rem] font-[600]'>
                   Phone Number
                 </label>
 
-                <PhoneInput
-                  initialValueFormat='national'
-                  value={value}
+                <PhoneInputWithCountry
+                  defaultCountry='IN'
+                  name='mobileNumber'
+                  control={control}
                   onChange={setValue}
-
-                  defaultCountry="IN"
-                  style={{
-                    outline: "none",
-                    height: "51.2px",
-                    border: "1px solid #D1D4D7",
+                  className='outline-none cursor-pointer rounded-[0.5rem]  border border-solid border-[#D1D4D7] px-[1rem] py-0 text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem] font-[500] placeholder:text-[#E1D6D5]'
+                  rules={{
+                    required: "This field is required.",
+                    validate: isValidPhoneNumber,
                   }}
-                  placeholder='Ex : 87XXXXXXXX'
-                  className='border border-[#AFBACA] rounded-md outline-none  px-[1rem] py-[0.5rem]  text-[#3D4A5C] text-[0.9rem] placeholder-[#8897AE]'
+                  style={{
+                    height: "51.2px",
+                    outline: "none ",
+                  }}
+                  placeholder='Enter Mobile Number'
                 />
+                {errors?.mobileNumber?.type === "required" && (
+                  <div className='text-sm font-bold text-[#E92215]'>
+                    {errors.mobileNumber.message}
+                  </div>
+                )}
+                {errors?.mobileNumber?.type === "validate" && (
+                  <div className='text-sm font-bold text-[#E92215]'>
+                    Invalid Mobile Number
+                  </div>
+                )}
               </div>
               <div className='flex flex-col gap-[0.2rem]'>
                 <label className='text-[#1A1616] text-[0.6rem] lg:text-[0.8rem] font-[600]'>
@@ -217,14 +286,14 @@ const AdminCreateEmployee = () => {
                     type={showPassword ? "text" : "password"}
                     name='password'
                     {...register("password", {
-                      required: true,
-                      message: "This filed is required",
+                      required: "This filed is required",
                     })}
                     placeholder='Enter password'
-                    className='outline-none flex-1  border-none px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
+                    className='outline-none flex-1  border-none px-[1rem] text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem] font-[500] placeholder:text-[#E1D6D5]'
                   />
 
                   <button
+                    type='button'
                     onClick={() => setShowPassword(!showPassword)}
                     className='flex items-center pr-[1rem]'>
                     <Icon
@@ -233,31 +302,11 @@ const AdminCreateEmployee = () => {
                     />
                   </button>
                 </div>
-              </div>
-              <div className='flex flex-col gap-[0.2rem]'>
-                <label className='text-[#1A1616] text-[0.6rem] lg:text-[0.8rem] font-[600]'>
-                  Role
-                </label>
-
-                <Controller
-                  name='designation'
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      label={
-                        <p className='text-[#E1D6D5] '>Select Role Type</p>
-                      }
-                      className='border border-solid border-[#D1D4D7] text-[0.6rem] font-[500] text-[#E1D6D5]'
-                      size='lg'>
-                      <Option value='Caller'>Caller</Option>
-                      <Option value='Preparer'>Preparer</Option>
-                      <Option value='finalDrafter'>Final Drafter</Option>
-                    </Select>
-                  )}
-                />
-                {/*
-                 */}
+                {errors.password && (
+                  <p className='text-red-600 font-bold text-sm'>
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
               <div className='flex flex-col gap-[0.2rem]'>
                 <label className='text-[#1A1616] text-[0.6rem] lg:text-[0.8rem] font-[600]'>
@@ -276,24 +325,60 @@ const AdminCreateEmployee = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder='Enter password'
-                    className='outline-none flex-1  border-none px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
+                    className='outline-none flex-1  border-none px-[1rem] text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem] font-[500] placeholder:text-[#E1D6D5]'
                   />
 
                   <button
+                    type='button'
                     onClick={() => setConfirmPassword(!showConfirmPassword)}
                     className='flex items-center pr-[1rem]'>
                     <Icon
-                      icon={showPassword ? "mdi:eye" : "mdi:eye-off"}
+                      icon={showConfirmPassword ? "mdi:eye" : "mdi:eye-off"}
                       className='text-[#E1D6D5] text-[1rem] lg:text-[1.5rem]'
                     />
                   </button>
                 </div>
 
                 {confirmPasswordError !== "" && (
-                  <p className='text-[red] text-[0.7rem] font-bold'>
+                  <p className='text-red-600 font-bold text-sm'>
                     {confirmPasswordError}
                   </p>
                 )}
+              </div>
+              <div className='flex flex-col gap-[0.2rem]'>
+                <label className='text-[#1A1616] text-[0.6rem] lg:text-[0.8rem] font-[600]'>
+                  Role
+                </label>
+
+                <Controller
+                  rules={{
+                    required: "*This field is required.",
+                  }}
+                  name='designation'
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      label={
+                        <p className='text-[#E1D6D5] '>Select Role Type</p>
+                      }
+                      className='text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem] font-[500] text-[#000]'
+                      size='lg'>
+                      <Option value='Caller'>Caller</Option>
+                      <Option value='Preparer'>Preparer</Option>
+                      <Option value='Reviewer'>Reviewer</Option>
+                      <Option value='Final Drafter'>Final Drafter</Option>
+                    </Select>
+                  )}
+                />
+
+                {errors.designation && (
+                  <p className='text-red-600 font-bold text-sm'>
+                    {errors.designation.message}
+                  </p>
+                )}
+                {/*
+                 */}
               </div>
 
               <div className='flex flex-col gap-[0.2rem]'>
@@ -305,12 +390,17 @@ const AdminCreateEmployee = () => {
                   type='text'
                   name='state'
                   {...register("state", {
-                    required: true,
-                    message: "This filed is required",
+                    required: "This filed is required",
                   })}
                   placeholder='Ex : Texas'
-                  className='outline-none rounded-[0.5rem] h-[3.2rem] border border-solid border-[#D1D4D7] px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
+                  className='outline-none rounded-[0.5rem] h-[3.2rem] border border-solid border-[#D1D4D7] px-[1rem] text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem] font-[500] placeholder:text-[#E1D6D5]'
                 />
+
+                {errors.state && (
+                  <p className='text-red-600 font-bold text-sm'>
+                    {errors.state.message}
+                  </p>
+                )}
               </div>
               <div className='flex flex-col gap-[0.2rem]'>
                 <label className='text-[#1A1616] text-[0.6rem] lg:text-[0.8rem] font-[600]'>
@@ -321,39 +411,46 @@ const AdminCreateEmployee = () => {
                   type='text'
                   name='zipCode'
                   {...register("zipCode", {
-                    required: true,
-                    message: "This filed is required",
+                    required: "This filed is required",
                   })}
                   placeholder='Ex : Texas'
-                  className='outline-none rounded-[0.5rem] h-[3.2rem] border border-solid border-[#D1D4D7] px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
+                  className='outline-none rounded-[0.5rem] h-[3.2rem] border border-solid border-[#D1D4D7] px-[1rem] text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem] font-[500] placeholder:text-[#E1D6D5]'
                 />
+
+                {errors.zipCode && (
+                  <p className='text-red-600 font-bold text-sm'>
+                    {errors.zipCode.message}
+                  </p>
+                )}
               </div>
               <div className='flex flex-col gap-[0.2rem]'>
                 <label className='text-[#1A1616] text-[0.6rem] lg:text-[0.8rem] font-[600]'>
                   Identify Type
                 </label>
-                {/* <Select
-                  label={<p className='text-[#E1D6D5] '>Select Role Type</p>}
-                  className='border border-solid border-[#D1D4D7] text-[0.6rem] font-[500] text-[#E1D6D5]'
-                  size='lg'>
-                  <Option >Aadhar</Option>
-                  <Option>Pancard</Option>
-                </Select> */}
 
                 <Controller
                   name='identifyType'
+                  rules={{
+                    required: "*This field is required.",
+                  }}
                   control={control}
                   render={({ field }) => (
                     <Select
                       {...field}
                       label={<p className='text-[#E1D6D5] '>Identify Type</p>}
-                      className='border border-solid border-[#D1D4D7] text-[0.6rem]  font-[500] text-[#E1D6D5]'
+                      className=' text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem]  font-[500] text-[#000]'
                       size='lg'>
                       <Option value='aadhar'>Aadhar</Option>
                       <Option value={"pancard"}>Pancard</Option>
                     </Select>
                   )}
                 />
+
+                {errors.identifyType && (
+                  <p className='text-red-600 font-bold text-sm'>
+                    {errors.identifyType.message}
+                  </p>
+                )}
               </div>
               <div className='flex flex-col gap-[0.2rem]'>
                 <label className='text-[#1A1616] text-[0.6rem] lg:text-[0.8rem] font-[600]'>
@@ -363,13 +460,17 @@ const AdminCreateEmployee = () => {
                 <input
                   type='text'
                   {...register("identityNumber", {
-                    required: true,
-                    message: "This filed is required",
+                    required: "This filed is required",
                   })}
                   name='identityNumber'
                   placeholder='Ex : 87XXXXXXXX'
-                  className='outline-none rounded-[0.5rem] h-[3.2rem] border border-solid border-[#D1D4D7] px-[1rem] text-[0.6rem] font-[500] placeholder:text-[#E1D6D5]'
+                  className='outline-none rounded-[0.5rem] h-[3.2rem] border border-solid border-[#D1D4D7] px-[1rem] text-[0.7rem] lg:text-[0.9rem] placeholder:text-[0.7rem] font-[500] placeholder:text-[#E1D6D5]'
                 />
+                {errors.identityNumber && (
+                  <p className='text-red-600 font-bold text-sm'>
+                    {errors.identityNumber.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -400,6 +501,14 @@ const AdminCreateEmployee = () => {
                     accept='image/*'
                     className=''
                     type='file'
+                    // name='employeeImage'
+                    // {...register("employeeImage",{
+                    //   required:"This field is required"
+                    // })}
+                    rules={{
+                      required: "*This field is required.",
+                    }}
+                    control={control}
                     onChange={({ target: { files } }) => {
                       console.log(files);
                       if (files[0]) {
@@ -420,12 +529,15 @@ const AdminCreateEmployee = () => {
                     {}
                   </p>
                 </div>
-                <div
-                  onDragOver={handleDragOver}
-                  onDrop={handleDrop}
-                  className='flex flex-col gap-[0.5rem]'>
+                {errors.employeeImage && (
+                  <p className='text-red-600 font-bold text-sm'>
+                    {errors.employeeImage.message}
+                  </p>
+                )}
+                <div className='flex flex-col gap-[0.5rem]'>
                   <div className='border border-solid border-[#D1D4D7] shrink-0 py-[0.9rem] px-[1.9rem] xl:px-[1.1rem] xl:py-[1.5rem]  rounded-[1.2rem] flex flex-col justify-center items-center gap-[0.5rem] lg:gap-[0.6rem] '>
                     <button
+                      type='button'
                       onClick={() => identityRef.current.click()}
                       className='bg-imageGray rounded-[0.5rem] p-[0.5rem] flex justify-center items-center'>
                       <Icon
@@ -437,6 +549,12 @@ const AdminCreateEmployee = () => {
                     <input
                       style={{ display: "none" }}
                       type='file'
+                      accept='image/*'
+                      control={control}
+                      // name="identityImage"
+                      // {...register("identityImage", {
+                      //   required:"This field is required"
+                      // })}
                       onChange={({ target: { files } }) => {
                         console.log(files);
                         if (files[0]) {
@@ -450,7 +568,8 @@ const AdminCreateEmployee = () => {
                       {identityFile ? (
                         <>
                           <p className='text-[0.7rem] font-[400]'>
-                            {identityFile.name}
+                            {identityFile.name.split("").slice(0, 10).join("") +
+                              ".png"}
                           </p>
                           <button onClick={() => setIdentityFile()}>
                             <Icon
@@ -480,23 +599,54 @@ const AdminCreateEmployee = () => {
                       (1:1)
                     </p>
                   </div>
+                  {errors.identityImage && (
+                    <p className='text-red-600 font-bold text-sm'>
+                      {errors.identityImage.message}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
           </div>
 
           <div className='flex flex-col gap-[1rem] md:flex-row md:justify-end'>
-            <button className='rounded-[1rem] bg-[#D1D4D7] border-none outline-none py-[1rem] w-full lg:w-[11rem] text-[0.8rem] text-[#000] font-[500]'>
+            <button
+              type='button'
+              onClick={() => reset()}
+              className='rounded-[1rem] bg-[#D1D4D7] border-none outline-none py-[1rem] w-full lg:w-[11rem] text-[0.8rem] text-[#000] font-[500]'>
               Reset
             </button>
-            <button
-              type='submit'
-              className='rounded-[1rem] bg-[#C5090A] border-none outline-none py-[1rem] w-full lg:w-[11rem] text-[0.8rem] text-white font-[500]'>
-              Submit
-            </button>
+
+            {showLoader ? (
+              <div className='w-full lg:w-[11rem] flex justify-center items-center '>
+                <ThreeDots
+                  height='50'
+                  width='50'
+                  radius='9'
+                  color='#C5090A'
+                  ariaLabel='three-dots-loading'
+                  wrapperStyle={{}}
+                  wrapperClassName=''
+                  visible={true}
+                />
+              </div>
+            ) : (
+              <button
+                type='submit'
+                className='rounded-[1rem] bg-[#C5090A] border-none outline-none py-[1rem] w-full lg:w-[11rem] text-[0.8rem] text-white font-[500]'>
+                Submit
+              </button>
+            )}
           </div>
         </form>
       </div>
+      <ToastContainer
+        icon={true}
+        toastClassName={({ type }) =>
+          contextClass[type || "default"] +
+          " relative flex p-2 h-[4rem] text-white  text-[1rem] font-[500]  rounded-tr justify-between overflow-hidden cursor-pointer"
+        }
+      />
     </div>
   );
 };

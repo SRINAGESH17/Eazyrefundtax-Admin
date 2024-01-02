@@ -18,12 +18,9 @@ import logo2 from "../../assets/logo2.png";
 
 const AuthPage = () => {
   const [loaderBtn, setLoaderBtn] = useState(false);
-
-  const [showPassword, setShowPassword] = useState(false);
-
   const [showForgotPassword, setForgotPasswordStatus] = useState(false);
   const navigate = useNavigate();
-  
+
   const { login, currentUser, resetPassword, saveUserRole, setUserInfo } =
     useAuth();
 
@@ -117,10 +114,6 @@ const AuthPage = () => {
     setLoaderBtn(false);
   };
 
-  const showUserPassword = (e) => {
-    setShowPassword(!showPassword);
-  };
-
   const ForgotPassword = () => {
     const {
       register,
@@ -137,7 +130,6 @@ const AuthPage = () => {
       <form
         onSubmit={handleSubmit(onSubmit)}
         action=''
-       
         className='w-full flex flex-col gap-[1.5rem]'>
         <div className='group flex flex-col gap-[0.5rem]'>
           <label
@@ -176,8 +168,7 @@ const AuthPage = () => {
         <div
           className={`flex flex-row justify-start self-start  text-[#1A1A1A] text-[0.8rem] font-[600]`}>
           <button
-
-          type="button"
+            type='button'
             onClick={() => setForgotPasswordStatus(false)}
             className={`w-full border-none`}>
             <p className='cursor-pointer'>Back</p>
@@ -220,6 +211,12 @@ const AuthPage = () => {
     const onSubmit = (data) => {
       loginHandler(data);
     };
+
+    const showUserPassword = (e) => {
+      setShowPassword(!showPassword);
+    };
+
+    const [showPassword, setShowPassword] = useState(false);
 
     return (
       <form
@@ -284,6 +281,7 @@ const AuthPage = () => {
             />
             <div className='text-[1.2rem] pl-[0.5rem] xs:pl-[1rem]  cursor-pointer '>
               {console.log(showPassword)}
+
               {showPassword ? (
                 <Icon
                   onClick={showUserPassword}
@@ -307,6 +305,7 @@ const AuthPage = () => {
         <div
           className={`flex flex-row justify-end self-end text-[#1A1A1A] text-[0.8rem] font-[600]`}>
           <button
+            type='button'
             onClick={() => setForgotPasswordStatus(true)}
             className={`w-full border-none`}>
             <p className='cursor-pointer'>Forgot Password?</p>

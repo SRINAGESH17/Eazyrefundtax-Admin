@@ -22,16 +22,43 @@ const EmployeeList = () => {
 
   const [sampleData] = useOutletContext();
 
+  console.log(sampleData,"employee sample data")
+
   const [employeeData, setEmployeeData] = useState([]);
   const [searchKey, setSearchKey] = useState("");
 
   const [page, setPage] = useState(1);
   const [totalList, setTotalList] = useState();
+  const { getAccessToken } = useAuth();
+
+  const deleteEmployee = async (id) => {
+    try {
+      console.log(id, "id received for deleting");
+      const token = await getAccessToken();
+
+      const url = AdminAuthorURL.employee.deleteEmployee(id);
+
+      const options = {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const response = await fetch(url, options);
+      const responseObj = await response.json();
+
+      console.log(response, "delete response");
+      console.log(responseObj, "delete response obj");
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   const columns = [
     {
       name: "SL",
-      cell: (row, index) => index + 1,
+      selector: (row, index) => index+(page-1)*10 + 1,
     },
     {
       name: "Employee ID",
@@ -73,21 +100,6 @@ const EmployeeList = () => {
       name: "Assign Employee to Admin",
       width: "220px",
       cell: (row) => (
-        // <div className='w-[9rem] h-[2.5rem]  border border-solid border-[#D1D4D7] rounded-[0.5rem] px-[0.4rem]'>
-        //   <select className='border-none bg-transparent w-full h-full text-[#8888A3] outline-none '>
-        //     <option>Satyendra</option>
-        //     <option>Mustaq MD Ahmed</option>
-        //   </select>
-
-        //   {/* <Select
-        //     size='sm'
-        //     className=' w-full'
-        //     label={<p className=' text-[#8888A3]'>Select Employee</p>}>
-        //     <Option>Satyendra</Option>
-        //     <Option>Mustaq md Ahmed</Option>
-        //   </Select> */}
-        // </div>
-
         <div className=''>
           <Select
             size='md'
@@ -135,7 +147,7 @@ const EmployeeList = () => {
       cell: (row) => (
         <div className={`flex flex-row items-center gap-[1rem]`}>
           <button
-            onClick={() => navigate(`/employee/${row.id}`)}
+            onClick={() => navigate(`/employee/${row._id}`)}
             style={{ border: "0.727px solid #D9D9D9" }}
             className='bg-[#FFF] rounded-[7.23px] flex justify-center items text-[1.1rem] text-[#000000] p-[0.4rem]'>
             <Icon icon='mdi:eye' />
@@ -151,11 +163,17 @@ const EmployeeList = () => {
                 <Icon icon='material-symbols:delete-rounded' />
               </button>
             }>
-            {(close) => <DeleteUserConfirmation close={close} />}
+            {(close) => (
+              <DeleteUserConfirmation
+                close={close}
+                deleteEmployee={deleteEmployee}
+                id={row._id}
+              />
+            )}
           </Popup>
 
           <button
-            onClick={() => navigate(`/employee/${row.id}`)}
+            onClick={() => navigate(`/employee/${row._id}`)}
             style={{ border: "0.727px solid #D9D9D9" }}
             className='bg-[#FFF] rounded-[7.23px] flex justify-center items text-[1.1rem] text-[#000000] p-[0.4rem]'>
             <Icon icon='ic:baseline-edit' />
@@ -228,7 +246,6 @@ const EmployeeList = () => {
       position: toast.POSITION.TOP_CENTER,
     });
   };
-  const { getAccessToken } = useAuth();
 
   const fetchEmployeeDetails = async () => {
     const token = await getAccessToken();
@@ -246,14 +263,14 @@ const EmployeeList = () => {
 
     const responseData = await response.json();
 
-    console.log(responseData);
+    // console.log(responseData);
 
     if (response.ok) {
       const employeesArray = responseData.response.limitedData;
 
       setEmployeeData(employeesArray);
 
-      setTotalList(responseData.totalData);
+      setTotalList(responseData.response.totalData);
     } else {
       setEmployeeData([]);
     }
@@ -271,6 +288,8 @@ const EmployeeList = () => {
     console.log("search input is triggered");
     fetchEmployeeDetails();
   }, [searchKey, page]);
+
+  console.log(totalList);
 
   return (
     <div className='flex flex-col   lg:bg-[#fff] lg:rounded-[0.5rem] lg:shadow-shadow'>
@@ -295,11 +314,6 @@ const EmployeeList = () => {
                 className='flex-1 xl:w-[15rem] outline-none border-r-0  border-[0.5px] border-solid border-[#D1D4D7] rounded-s-[0.5rem] px-[1rem] py-[0.5rem] text-black font-[500] text-[0.7rem]  placeholder-[#D1D4D7]'
                 placeholder='Search by Name or Phone or Email'
               />
-              {/* <input
-                  type='text'
-                  placeholder='Search by Name or Phone or Email'
-                  className='flex-1  items-center   h-full rounded-s-[0.5rem] border-[0.5px] border-solid border-[#D1D4D7] border-r-0 outline-none placeholder:text-[#D1D4D7]'
-                /> */}
 
               <button
                 style={{
