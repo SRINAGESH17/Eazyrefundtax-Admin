@@ -12,7 +12,7 @@ const AdminPanelLayout = () => {
   return (
     <>
       <div className='flex  bg-white'>
-        <div className='hidden lg:inline-block lg:flex-1 '>
+        <div className='hidden lg:flex-1 lg:inline-block shrink-0 '>
           <VendorSidebar
             isSidebarOpen={isSidebarOpen}
             setIsSidebarOpen={setIsSidebarOpen}
@@ -34,7 +34,7 @@ const AdminPanelLayout = () => {
           )}
         </AnimatePresence>
 
-        <div className='lg:flex-[4] grow  w-full h-screen overflow-y-auto overflow-x-hidden'>
+        <div className='lg:flex-[4] w-full h-screen  overflow-y-auto overflow-x-hidden '>
           <div
             className={`h-full  overflow-x-hidden relative flex flex-col w-full grow `}>
             <Header

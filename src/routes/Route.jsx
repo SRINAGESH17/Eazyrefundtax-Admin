@@ -42,6 +42,7 @@ import InvoiceList from "../components/adminPanel/invoiceList/InvoiceList";
 import RegisteredClients from "../components/adminPanel/registeredClients/RegisteredClients";
 import Sms from "../components/adminPanel/sms/Sms";
 import ReferalList from "../components/adminPanel/ReferalList";
+import ForgotPassword from "../components/adminPanel/ForgotPassword";
 import TaxYear from "../components/adminPanel/taxType/TaxYear";
 import TaxYearDoc from "../components/adminPanel/taxType/TaxYearDoc";
 import TaxYearReturn from "../components/adminPanel/taxType/TaxYearReturn";
@@ -332,6 +333,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<Loader />}>
             <PrivateRoute component={ReferalList} />
+          </Suspense>
+        ),
+      },
+      {
+        path: "forgot-password",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <PrivateRoute component={ForgotPassword} />
           </Suspense>
         ),
       },

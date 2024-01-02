@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import {useAuth} from "../../../stores/AuthContext"
 
-const DeleteUserConfirmation = ({ close }) => {
+const DeleteUserConfirmation = ({ close, id, deleteEmployee }) => {
   return (
     <div className='bg-[#FFF] rounded-[1rem] lg:rounded-[1.2rem]  lg:w-[31rem] max-w-[560px] p-[1.5rem] lg:p-[2.5rem] flex flex-col gap-[1rem] mx-[2rem]'>
       <div className='flex flex-col gap-[0.5rem]'>
@@ -27,7 +27,9 @@ const DeleteUserConfirmation = ({ close }) => {
       </div>
 
       <div className='flex flex-col gap-[0.5rem]'>
-        <button className='w-full bg-[#C5090A] rounded-[0.5rem] py-[1rem] text-[#fff] text-[0.5rem] lg:text-[0.7rem]'>
+        <button
+          onClick={() => deleteEmployee(id)}
+          className='w-full bg-[#C5090A] rounded-[0.5rem] py-[1rem] text-[#fff] text-[0.5rem] lg:text-[0.7rem]'>
           Delete
         </button>
         <button
