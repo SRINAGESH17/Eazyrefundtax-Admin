@@ -6,18 +6,16 @@ module.exports = withMT({
   theme: {
     extend: {
       fontFamily: {
-        "amulya_bold":['amulya_bold','sans-serf'],
-        "amulya_boldItalic":['amulya_boldItalic','sans-serf'],
-        "amulya_italic":['amulya_italic','sans-serf'],
-        "amulya_light":['amulya_light','sans-serf'],
-        "amulya_lightItalic":['amulya_lightItalic','sans-serf'],
-        "amulya_medium":['amulya_medium','sans-serf'],
-        "amulya_mediumItalic":['amulya_mediumItalic','sans-serf'],
-        "amulya_regular":['amulya_regular','sans-serf'],
-        "amulya_variable":['amulya_variable','sans-serf'],
-        "amulya_variableItalic":['amulya_variableItalic','sans-serf'],
-
-
+        "amulya_bold": ['amulya_bold', 'sans-serf'],
+        "amulya_boldItalic": ['amulya_boldItalic', 'sans-serf'],
+        "amulya_italic": ['amulya_italic', 'sans-serf'],
+        "amulya_light": ['amulya_light', 'sans-serf'],
+        "amulya_lightItalic": ['amulya_lightItalic', 'sans-serf'],
+        "amulya_medium": ['amulya_medium', 'sans-serf'],
+        "amulya_mediumItalic": ['amulya_mediumItalic', 'sans-serf'],
+        "amulya_regular": ['amulya_regular', 'sans-serf'],
+        "amulya_variable": ['amulya_variable', 'sans-serf'],
+        "amulya_variableItalic": ['amulya_variableItalic', 'sans-serf'],
       },
       colors: {
         lightBlack: "rgba(0, 0, 0, 0.70)",
@@ -26,6 +24,9 @@ module.exports = withMT({
       boxShadow: {
         shadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
         formShadow: "0px 4px 10px 0px rgba(0, 0, 0, 0.10)",
+        '3xl': 'rgba(0, 0, 0, 0.35) 0px 5px 15px',
+        '6xl': 'rgba(0, 0, 0, 0.35) 10px 0 5px -2px',
+        '3dShadow': '0px 0px 10px 0px rgba(0, 0, 0, 0.10);'
       },
     },
 

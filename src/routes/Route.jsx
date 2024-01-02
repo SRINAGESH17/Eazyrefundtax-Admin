@@ -31,6 +31,11 @@ import MigratingCalls from "../components/adminPanel/callData/MigratingCalls";
 import MigratingPendingCalls from "../components/adminPanel/callData/MigratingPendingCalls";
 
 import ClientDocument from "../components/adminPanel/clientDocument/ClientDocument";
+import ClientDocumentList from "../components/adminPanel/clientDocument/ClientDocumentList";
+import ClientProfile from "../components/adminPanel/clientDocument/ClientProfile";
+import PendingClient from "../components/adminPanel/clientDocument/PendingClient";
+import ReviewerUploadedDoc from "../components/adminPanel/clientDocument/ReviewerUploadedDoc";
+
 import TaxType from "../components/adminPanel/taxType/TaxType";
 import InvoiceList from "../components/adminPanel/invoiceList/InvoiceList";
 
@@ -217,6 +222,50 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<Loader />}>
             <PrivateRoute component={ClientDocument} />
+          </Suspense>
+        ),
+        children: [
+          {
+            path: "",
+            element: (
+              <Suspense fallback={<Loader />}>
+                <PrivateRoute component={ClientDocumentList} />
+              </Suspense>
+            ),
+            // children: [
+            //   {
+            //     path: "client-profile",
+            //     element: (
+            //       <Suspense fallback={<Loader />}>
+            //         <PrivateRoute component={ClientProfile} />
+            //       </Suspense>
+            //     ),
+            //   },
+            // ],
+          },
+          {
+            path: "pending-client-doc",
+            element: (
+              <Suspense fallback={<Loader />}>
+                <PrivateRoute component={PendingClient} />
+              </Suspense>
+            ),
+          },
+          {
+            path: "reviewer-uploaded-doc",
+            element: (
+              <Suspense fallback={<Loader />}>
+                <PrivateRoute component={ReviewerUploadedDoc} />
+              </Suspense>
+            ),
+          },
+        ],
+      },
+      {
+        path: "client-document/client-profile",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <PrivateRoute component={ClientProfile} />
           </Suspense>
         ),
       },
