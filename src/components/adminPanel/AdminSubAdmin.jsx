@@ -208,6 +208,7 @@ const AdminSubAdmin = () => {
     {
       name: "SL",
       selector: (row, index) => (page - 1) * 10 + index + 1,
+      
     },
     {
       name: "Sub-admin ID",
@@ -302,48 +303,7 @@ const AdminSubAdmin = () => {
     },
   ];
 
-  const sampleData = [
-    {
-      adminId: "12345",
-      image: employeeProfile,
-      name: "Manikanta Putta",
-      email: "manikantaputta@gmail.com",
-      phoneNumber: "2711389",
-      address: "Telangana",
-      pincode: 500084,
-      status: "active",
-    },
-    {
-      adminId: "12345",
-      image: employeeProfile,
-      name: "Manikanta Putta",
-      email: "manikantaputta@gmail.com",
-      phoneNumber: "2711389",
-      address: "Telangana",
-      pincode: 500084,
-      status: "active",
-    },
-    {
-      adminId: "12345",
-      image: employeeProfile,
-      name: "Manikanta Putta",
-      email: "manikantaputta@gmail.com",
-      phoneNumber: "2711389",
-      address: "Telangana",
-      pincode: 500084,
-      status: "inActive",
-    },
-    {
-      adminId: "12345",
-      image: employeeProfile,
-      name: "Manikanta Putta",
-      email: "manikantaputta@gmail.com",
-      phoneNumber: "2711389",
-      address: "Telangana",
-      pincode: 500084,
-      status: "inActive",
-    },
-  ];
+
 
   const updateData = async (data) => {
     console.log("updata data called", data, image);

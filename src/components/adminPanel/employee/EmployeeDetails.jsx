@@ -6,11 +6,11 @@ import { AdminAuthorURL } from "../../../baseUrl/BaseUrl";
 import Stepper from "./Stepper";
 
 const EmployeeDetails = () => {
-  const [sampleData] = useOutletContext();
+
 
   const { id } = useParams();
 
-  const selectedUser = sampleData.find((user) => user.id == id);
+
 
   const [employeeDetails, setEmployeeDetails] = useState({});
 
