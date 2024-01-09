@@ -56,15 +56,13 @@ const EmployeeList = () => {
     {
       name: "SL",
       selector: (row, index) => index + (page - 1) * 10 + 1,
-      
     },
     {
       name: "Employee ID",
       width: "120px",
-   
+
       cell: (row) => (
         <button
-     
           className="border-none"
           onClick={() => navigate(`/employee/${row._id}`)}
         >
@@ -75,7 +73,7 @@ const EmployeeList = () => {
     {
       name: "Employee Name",
       cell: (row) => (
-        <div  className="flex flex-row items-center gap-[1rem]">
+        <div className="flex flex-row items-center gap-[1rem]">
           <p>{row.name}</p>
         </div>
       ),
@@ -84,7 +82,7 @@ const EmployeeList = () => {
     {
       name: "Contact Information",
       cell: (row) => (
-        <div  className="flex flex-col gap-[0.2rem]">
+        <div className="flex flex-col gap-[0.2rem]">
           <p>{row.email}</p>
           <p>{row.mobileNumber}</p>
         </div>
@@ -118,7 +116,6 @@ const EmployeeList = () => {
       sortable: true,
       cell: (row) => (
         <div
-    
           className={`${
             row.status === "active"
               ? "bg-[#ECFDF3]  text-[#00C041]"
@@ -145,7 +142,7 @@ const EmployeeList = () => {
       name: "Action",
       center: true,
       cell: (row) => (
-        <div  className="flex flex-row items-center gap-[1rem]">
+        <div className="flex flex-row items-center gap-[1rem]">
           <button
             onClick={() => navigate(`/employee/${row?._id}`)}
             style={{ border: "0.727px solid #D9D9D9" }}
@@ -297,9 +294,9 @@ const EmployeeList = () => {
   console.log(totalList);
 
   return (
-    <div className='flex flex-col   lg:bg-[#fff] lg:rounded-[0.5rem] lg:shadow-shadow'>
-      <div className='py-[1rem] lg:p-[1.5rem]'>
-        <h1 className='text-[0.8rem] text-[#1A1616] font-[700] lg:text-[1rem]'>
+    <div className="flex flex-col lg:bg-[#fff] lg:rounded-[0.5rem] lg:shadow-shadow">
+      <div className="py-[1rem] lg:p-[1.5rem]">
+        <h1 className="text-[0.8rem] text-[#1A1616] font-[700] lg:text-[1rem]">
           List of the employees
         </h1>
       </div>
