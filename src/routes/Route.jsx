@@ -31,6 +31,11 @@ import MigratingCalls from "../components/adminPanel/callData/MigratingCalls";
 import MigratingPendingCalls from "../components/adminPanel/callData/MigratingPendingCalls";
 
 import ClientDocument from "../components/adminPanel/clientDocument/ClientDocument";
+import ClientDocumentList from "../components/adminPanel/clientDocument/ClientDocumentList";
+import ClientProfile from "../components/adminPanel/clientDocument/ClientProfile";
+import PendingClient from "../components/adminPanel/clientDocument/PendingClient";
+import ReviewerUploadedDoc from "../components/adminPanel/clientDocument/ReviewerUploadedDoc";
+
 import TaxType from "../components/adminPanel/taxType/TaxType";
 import InvoiceList from "../components/adminPanel/invoiceList/InvoiceList";
 
@@ -38,6 +43,9 @@ import RegisteredClients from "../components/adminPanel/registeredClients/Regist
 import Sms from "../components/adminPanel/sms/Sms";
 import ReferalList from "../components/adminPanel/ReferalList";
 import ForgotPassword from "../components/adminPanel/ForgotPassword";
+import TaxYear from "../components/adminPanel/taxType/TaxYear";
+import TaxYearDoc from "../components/adminPanel/taxType/TaxYearDoc";
+import TaxYearReturn from "../components/adminPanel/taxType/TaxYearReturn";
 
 const PrivateRoute = ({ component: Component }) => {
   const { currentUser, userRole } = useAuth();
@@ -48,7 +56,7 @@ const PrivateRoute = ({ component: Component }) => {
           <Component />
         </Suspense>
       ) : (
-        <Navigate to='/auth' replace />
+        <Navigate to="/auth" replace />
       )}
     </>
   );
@@ -217,6 +225,50 @@ export const router = createBrowserRouter([
             <PrivateRoute component={ClientDocument} />
           </Suspense>
         ),
+        children: [
+          {
+            path: "",
+            element: (
+              <Suspense fallback={<Loader />}>
+                <PrivateRoute component={ClientDocumentList} />
+              </Suspense>
+            ),
+            // children: [
+            //   {
+            //     path: "client-profile",
+            //     element: (
+            //       <Suspense fallback={<Loader />}>
+            //         <PrivateRoute component={ClientProfile} />
+            //       </Suspense>
+            //     ),
+            //   },
+            // ],
+          },
+          {
+            path: "pending-client-doc",
+            element: (
+              <Suspense fallback={<Loader />}>
+                <PrivateRoute component={PendingClient} />
+              </Suspense>
+            ),
+          },
+          {
+            path: "reviewer-uploaded-doc",
+            element: (
+              <Suspense fallback={<Loader />}>
+                <PrivateRoute component={ReviewerUploadedDoc} />
+              </Suspense>
+            ),
+          },
+        ],
+      },
+      {
+        path: "client-document/client-profile",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <PrivateRoute component={ClientProfile} />
+          </Suspense>
+        ),
       },
       {
         path: "tax-type",
@@ -225,6 +277,32 @@ export const router = createBrowserRouter([
             <PrivateRoute component={TaxType} />
           </Suspense>
         ),
+        children: [
+          {
+            path: "",
+            element: (
+              <Suspense fallback={<Loader />}>
+                <PrivateRoute component={TaxYear} />
+              </Suspense>
+            ),
+          },
+          {
+            path: "year-doc",
+            element: (
+              <Suspense fallback={<Loader />}>
+                <PrivateRoute component={TaxYearDoc} />
+              </Suspense>
+            ),
+          },
+          {
+            path: "year-return",
+            element: (
+              <Suspense fallback={<Loader />}>
+                <PrivateRoute component={TaxYearReturn} />
+              </Suspense>
+            ),
+          },
+        ],
       },
       {
         path: "invoice-list",

@@ -1,10 +1,8 @@
+import React from "react";
 import DataTable from "react-data-table-component";
 import eyeIcon from "../../../assets/mdi_eye.svg";
-import { useNavigate } from "react-router-dom";
 
-const ClientDocumentList = () => {
-  const navigate = useNavigate();
-
+function PendingClient() {
   const columns = [
     {
       name: "SL No.",
@@ -54,7 +52,6 @@ const ClientDocumentList = () => {
       cell: (row) => (
         <div>
           <button
-            onClick={() => navigate("/client-document/client-profile")}
             style={{ border: "0.727px solid #D9D9D9" }}
             className="bg-[#FFF] rounded-[7.23px] flex justify-center items text-[1.1rem] text-[#000000] p-[0.5rem]"
           >
@@ -133,6 +130,7 @@ const ClientDocumentList = () => {
       unassignedCalls: "0",
     },
   ];
+
   return (
     <div className="flex flex-col mt-1">
       <div className="flex lg:mr-2 lg:justify-end pt-3 pr-2">
@@ -156,6 +154,6 @@ const ClientDocumentList = () => {
       </div>
     </div>
   );
-};
+}
 
-export default ClientDocumentList;
+export default PendingClient;

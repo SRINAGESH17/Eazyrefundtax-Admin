@@ -32,6 +32,16 @@ export const AdminAuthorURL = {
     migratePendingCalls:`${AdminBaseUrl}/call/migrate-pending`,
     fetchCalls:(searchKey,status,page) =>  `${AdminBaseUrl}/call/fetch?searchKey=${searchKey}&status=${status}&page=${page}&limit=10`
   },
+  taxType:{
+    getTaxYears:`${AdminBaseUrl}/tax-year/fetch`,
+    addTaxYear: `${AdminBaseUrl}/tax-year/add`,
+
+    addTaxDocument:`${AdminBaseUrl}/tax-doc-type/add`,
+    getTaxDocuments:`${AdminBaseUrl}/tax-doc-type/fetch`,
+
+    addTaxReturnDocument:`${AdminBaseUrl}/tax-return-doc-type/add`,
+    getTaxReturnDocuments:`${AdminBaseUrl}/tax-return-doc-type/fetch`
+  }
 };
 
 export const AuthURL = {
