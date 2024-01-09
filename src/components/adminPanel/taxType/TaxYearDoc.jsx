@@ -1,89 +1,150 @@
 import React from "react";
 import DataTable from "react-data-table-component";
-import { Select, Option } from "@material-tailwind/react";
-import { ThemeProvider } from "@material-tailwind/react";
+import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { useState, useEffect } from "react";
+import moment from "moment";
+
+import { ToastContainer, toast } from "react-toastify";
+import { ThreeDots } from "react-loader-spinner";
+import { Icon } from "@iconify/react";
+
+import { useQuery } from "react-query";
+import { useAuth } from "../../../stores/AuthContext";
+import { AdminAuthorURL } from "../../../baseUrl/BaseUrl";
+
+import {
+  IconButton,
+  Option,
+  Select,
+  ThemeProvider,
+  Button,
+  Menu,
+  MenuHandler,
+  MenuItem,
+  MenuList,
+} from "@material-tailwind/react";
 
 function TaxYearDoc() {
-  const theme = {
-    select: {
-      styles: {
-        base: {
-          container: {
-            position: "relative",
-            marginTop: "mt-4",
-          },
-        },
-        variants: {
-          outlined: {
-            colors: {
-              select: {
-                red: {
-                  close: {
-                    borderColor: "border-blue-gray-200",
-                  },
-                  open: {
-                    borderColor: "border-[#C5090A]",
-                    borderTopColor: "border-t-transparent",
-                  },
-                  withValue: {
-                    borderColor: "border-blue-gray-200",
-                    borderTopColor: "border-t-transparent",
-                  },
-                },
-              },
-              label: {
-                red: {
-                  close: {
-                    color: "text-blue-gray-400",
-                    before: "before:border-transparent",
-                    after: "after:border-transparent",
-                  },
-                  open: {
-                    color: "text-blue-gray-500",
-                    before: "before:border-[#C5090A]",
-                    after: "after:border-[#C5090A]",
-                  },
-                  withValue: {
-                    color: "text-blue-gray-400",
-                    before: "before:border-blue-gray-200",
-                    after: "after:border-blue-gray-200",
-                  },
-                },
-              },
-            },
-          },
-        },
+  const { getAccessToken } = useAuth();
+  const [taxData, setTaxData] = useState();
+  const [loaderBtn, setLoaderBtn] = useState(false);
+
+  const getTaxDocuments = async () => {
+    const token = await getAccessToken();
+
+    const response = await fetch(AdminAuthorURL.taxType.getTaxDocuments, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-    },
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error("Something Went Wrong Fetching Tax Year");
+    }
+
+    return result;
+  };
+
+  const { isLoading, isError, data, error, isSuccess, refetch } = useQuery(
+    "fetchCategoriesList",
+    getTaxDocuments
+  );
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    control,
+    reset,
+  } = useForm();
+
+  const onSubmit = async (data) => {
+    try {
+      const token = await getAccessToken();
+
+      setLoaderBtn(true);
+      const response = await fetch(AdminAuthorURL.taxType.addTaxDocument, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ name: data.taxYearDoc }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setLoaderBtn(false);
+        toast.error(result.message);
+      } else {
+        setLoaderBtn(false);
+        toast.success(result.message);
+        reset();
+        refetch();
+      }
+    } catch (error) {
+      setLoaderBtn(false);
+      toast.error("Error Adding Tax Document");
+    }
   };
 
   const columns = [
     {
-      name: "Call Slot Type",
-      id: "slotType",
-      selector: (row) => row.slotType,
-      grow: 4,
+      name: "SL",
+      selector: (row, index) => index + 1,
     },
     {
-      name: "Slot Total Calls",
-      id: "totalCalls",
-      selector: (row) => row.totalCalls,
-      grow: 1,
+      name: "Tax Document",
+      id: "taxDocName",
+      selector: (row) => row.taxDocName,
     },
     {
-      name: "Assigned Calls",
-      id: "assignedCalls",
-      selector: (row) => row.assignedCalls,
-      grow: 1,
+      name: "Created on",
+      id: "createdOn",
+      selector: (row) => moment(row.createdOn).format("DD MMMM YYYY"),
+      grow: 2,
     },
     {
-      name: "Unassigned Calls",
-      id: "unassignedCalls",
+      name: "Actions",
+      id: "action",
+      cell: (row) => (
+        <div className="flex space-x-2">
+          <Link to={"edit/:id"}>
+            <IconButton
+              className="shadow-none hover:shadow-none focus:shadow-none bg-white text-[#565656]"
+              style={{
+                borderRadius: "5.55px",
+                border: "0.925px solid #D9D9D9",
+                background: "#FFF",
+              }}
+            >
+              <Icon
+                icon="material-symbols:delete-rounded"
+                className="text-[1.5rem]"
+              />
+            </IconButton>
+          </Link>
+        </div>
+      ),
       center: true,
       grow: 1,
-      selector: (row) => row.unassignedCalls,
     },
   ];
+
+  useEffect(() => {
+    if (isSuccess) {
+      const taxDataToShow = data?.message?.data?.map((item, index) => {
+        return {
+          taxDocName: item.name,
+          createdOn: item.createdAt,
+        };
+      });
+      setTaxData(taxDataToShow);
+    }
+  }, [data]);
 
   const customStyles = {
     headRow: {
@@ -109,8 +170,6 @@ function TaxYearDoc() {
       style: {
         borderRadius: "6px 6px 0px 0px",
         borderBottom: "1px solid #D1D4D7",
-        borderLeft: "1px solid #D1D4D7",
-        borderRight: "1px solid #D1D4D7",
         background: "#FFF",
         color: "#8888A3",
         fontFamily: "amulya_light",
@@ -146,56 +205,64 @@ function TaxYearDoc() {
     },
   };
 
-  const sampleData = [
-    {
-      slotType: "5L",
-      totalCalls: "9999",
-      assignedCalls: "9999",
-      unassignedCalls: "0",
-    },
-  ];
-
   return (
-    <ThemeProvider value={theme}>
-      <div className="flex flex-col">
-        <div className="flex flex-col lg:flex-row lg:pr-11 lg:h-28 h-48 justify-between mt-5 pl-10">
-          <div className="flex flex-col lg:w-[48%]">
-            <span className="text-base font-amulya_bold text-[#1A1616]">
-              Select tax year
-            </span>
-            <Select variant="outlined" label="Select Employee" color="red">
-              <Option>Employee Type 1</Option>
-              <Option>Employee Type 2</Option>
-              <Option>Employee Type 3</Option>
-              <Option>Employee Type 4</Option>
-              <Option>Employee Type 5</Option>
-            </Select>
+    <div className="flex flex-col mt-5">
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="flex flex-col lg:w-[45%] gap-[0.5rem] w-full mb-6 px-10">
+          <p className="text-sm font-amulya_medium">Tax Document Type Name</p>
+          <div
+            className={`flex flex-row text-[0.9rem] font-[600] group-focus-within:bg-white  group-focus-within:shadow-md border  ${
+              !errors.taxYearDoc ? "border-[#AFBACA]" : "border-red-600 "
+            } items-center rounded-md px-[0.5rem] xs:px-[1rem] py-[0.8rem] `}
+          >
+            <input
+              type="text"
+              name="taxYearDoc"
+              placeholder="Document Type"
+              className="outline-none w-1 border-none flex-grow placeholder:text-[#858585] "
+              {...register("taxYearDoc", {
+                required: "*This field is required.",
+              })}
+            />
           </div>
-          <div className="flex flex-col lg:w-[48%]">
-            <span className="text-base font-amulya_bold text-[#1A1616]">
-              Tax Document Type Name
-              <span className="text-[#C5090A]">*</span>
-            </span>
-            <div className="flex border-[#D1D4D7] border-[1px] justify-between items-center rounded-md px-6 py-2 mt-4">
-              <input type="text" className="outline-none" />
-            </div>
-          </div>
-        </div>
-        <div className="flex w-full lg:justify-end justify-center mt-5 pr-11 mb-5">
-          <button className="rounded-lg py-2 px-9 text-white text-sm font-amulya_bold bg-[#C5090A] cursor-pointer hover:bg-[#853131]">
-            Update
-          </button>
+          {errors.taxYearDoc?.type === "required" && (
+            <p className="text-red-600 text-sm">{errors.taxYearDoc.message}</p>
+          )}
         </div>
 
-        <div className="flex mt-1 lg:px-10">
-          <DataTable
-            columns={columns}
-            data={sampleData}
-            customStyles={customStyles}
-          />
+        <div className="flex w-full lg:justify-end justify-center mt-5 pr-11 mb-5">
+          {loaderBtn ? (
+            <ThreeDots
+              height="50"
+              width="50"
+              radius="9"
+              color="#C5090A"
+              ariaLabel="three-dots-loading"
+              wrapperStyle={{}}
+              wrapperClassName=""
+              visible={true}
+            />
+          ) : (
+            <button
+              type="submit"
+              className="rounded-lg py-2 px-9 text-white text-sm font-amulya_bold bg-[#C5090A] cursor-pointer hover:bg-[#853131]"
+            >
+              Update
+            </button>
+          )}
         </div>
+      </form>
+
+      <div className="flex mt-1 lg:px-10">
+        <DataTable
+          columns={columns}
+          data={taxData}
+          customStyles={customStyles}
+          progressPending={isLoading}
+        />
       </div>
-    </ThemeProvider>
+      <ToastContainer />
+    </div>
   );
 }
 
